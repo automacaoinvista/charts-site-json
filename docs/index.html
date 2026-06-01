@@ -57,10 +57,10 @@
     chart.setOption({
       baseOption:{
         color:PALETTE,
-        title:{text:cfg.title||"",subtext:cfg.subtitle||"",left:0,top:0,
-          textStyle:{color:"#0E2A38",fontSize:20,fontWeight:700},
-          subtextStyle:{color:"#6B7280",fontSize:12}},
-        grid:{left:2,right:6,top:78,bottom:54,containLabel:true},
+        title:{text:cfg.title||"",subtext:cfg.subtitle||"",left:0,top:0,itemGap:8,
+          textStyle:{color:"#0E2A38",fontSize:26,fontWeight:800},
+          subtextStyle:{color:"#6B7280",fontSize:13}},
+        grid:{left:2,right:6,top:92,bottom:54,containLabel:true},
         tooltip:{trigger:"axis",confine:true,backgroundColor:"rgba(14,42,56,0.94)",borderWidth:0,
           textStyle:{color:"#fff"},valueFormatter:function(v){return v==null?"-":fmt(v);}},
         legend:{bottom:0,left:0,icon:"circle",itemWidth:11,itemHeight:11,itemGap:22,
@@ -73,14 +73,14 @@
         series:series
       },
       media:[
-        {query:{maxWidth:560},option:{title:{textStyle:{fontSize:16},subtextStyle:{fontSize:10}},
-          grid:{top:60,bottom:102},
+        {query:{maxWidth:560},option:{title:{textStyle:{fontSize:20},subtextStyle:{fontSize:11}},
+          grid:{top:72,bottom:102},
           legend:{orient:"vertical",left:0,itemGap:10,itemWidth:10,itemHeight:10,
             textStyle:{fontSize:11,width:230,overflow:"break",lineHeight:15}},
           xAxis:{axisLabel:{fontSize:endpoints?12:9}},yAxis:{axisLabel:{fontSize:9}}}},
-        {query:{minWidth:561,maxWidth:860},option:{title:{textStyle:{fontSize:18}},
-          grid:{top:70,bottom:54},legend:{orient:"horizontal"},xAxis:{axisLabel:{fontSize:endpoints?13:10}}}},
-        {query:{minWidth:861},option:{title:{textStyle:{fontSize:20}},grid:{top:78,bottom:54},legend:{orient:"horizontal"}}}
+        {query:{minWidth:561,maxWidth:860},option:{title:{textStyle:{fontSize:23}},
+          grid:{top:84,bottom:54},legend:{orient:"horizontal"},xAxis:{axisLabel:{fontSize:endpoints?13:10}}}},
+        {query:{minWidth:861},option:{title:{textStyle:{fontSize:26}},grid:{top:92,bottom:54},legend:{orient:"horizontal"}}}
       ]
     });
     var raf;function doResize(){cancelAnimationFrame(raf);raf=requestAnimationFrame(function(){chart.resize();});}
