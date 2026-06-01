@@ -1,43 +1,35 @@
 <!--
   ============================================================================
-  COMPONENTE ECHARTS GENÉRICO — inVista
+  COMPONENTE ECHARTS GENÉRICO E RESPONSIVO — inVista
   ----------------------------------------------------------------------------
   COMO USAR NO WEBFLOW:
   1) Adicione um elemento "Embed" (HTML Embed) onde quer o gráfico.
-  2) Cole TODO este bloco no primeiro gráfico da página.
-     Para gráficos adicionais, basta colar só a <div class="invista-chart" ...>
-     com a URL do JSON — o script já é carregado uma vez e serve todos.
+  2) Cole TODO este bloco no PRIMEIRO gráfico da página.
+     Para gráficos adicionais, cole só a <div class="invista-chart" data-src="...">
+     — o script já carregado serve todos.
   3) Troque o data-src pela URL pública do JSON do fundo.
 
+  Responsivo: a altura é fluida (clamp) e o gráfico re-renderiza ao redimensionar.
+  No celular as fontes e eixos encolhem automaticamente (media queries do ECharts).
   Para atualizar os dados, NINGUÉM mexe no Webflow: basta atualizar o Excel.
   ============================================================================
 -->
 
-<!-- 1 gráfico = 1 div. Repita a div trocando data-src para mais fundos. -->
+<!-- 1 gráfico = 1 div. Altura fluida: mín 260px, ~52% da largura, máx 440px. -->
 <div class="invista-chart"
      data-src="https://automacaoinvista.github.io/charts-site-json/credito.json"
-     style="width:100%;height:420px;"></div>
+     style="width:100%;height:clamp(260px,52vw,440px);"></div>
 
-<!-- ECharts (CDN) -->
 <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
-
 <script>
 (function () {
-  // evita inicializar duas vezes se o bloco for colado mais de uma vez
   if (window.__invistaChartsInit) return;
   window.__invistaChartsInit = true;
 
-  var BRAND = "#066B5E";
   var PALETTE = ["#066B5E", "#D6E94B", "#0E9384", "#9CA3AF", "#1F2937"];
-
-  function fmtPct(v) {
-    return (v >= 0 ? "" : "") + v.toLocaleString("pt-BR",
-      { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + "%";
-  }
-  function fmtIndex(v) {
-    return v.toLocaleString("pt-BR",
-      { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  }
+  function fmtPct(v){return v.toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2})+"%";}
+  function fmtIndex(v){return v.toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2});}
+  function hexA(hex,a){var h=hex.replace("#","");return "rgba("+parseInt(h.substr(0,2),16)+","+parseInt(h.substr(2,2),16)+","+parseInt(h.substr(4,2),16)+","+a+")";}
 
   function render(el, cfg) {
     var isCumulative = (cfg.mode || "").indexOf("cumulative") === 0;
@@ -53,9 +45,9 @@
         name: s.name,
         type: isBar ? "bar" : "line",
         smooth: !isBar,
+        showSymbol: false,
         symbol: "circle",
         symbolSize: 6,
-        showSymbol: false,
         lineStyle: { width: 2.5 },
         itemStyle: { color: color },
         emphasis: { focus: "series" },
@@ -68,78 +60,90 @@
       };
     });
 
+    // ---- baseOption = desktop; media = ajustes por largura ----
     chart.setOption({
-      color: PALETTE,
-      title: {
-        text: cfg.title || "",
-        subtext: cfg.subtitle || "",
-        left: "left",
-        textStyle: { color: "#111827", fontSize: 18, fontWeight: 600,
-                     fontFamily: "inherit" },
-        subtextStyle: { color: "#6B7280", fontSize: 12, fontFamily: "inherit" }
+      baseOption: {
+        color: PALETTE,
+        title: {
+          text: cfg.title || "", subtext: cfg.subtitle || "", left: "left",
+          textStyle: { color: "#111827", fontSize: 18, fontWeight: 600, fontFamily: "inherit" },
+          subtextStyle: { color: "#6B7280", fontSize: 12, fontFamily: "inherit" }
+        },
+        grid: { left: 12, right: 18, top: 78, bottom: 28, containLabel: true },
+        tooltip: {
+          trigger: "axis", confine: true,
+          backgroundColor: "rgba(17,24,39,0.92)", borderWidth: 0,
+          textStyle: { color: "#fff", fontFamily: "inherit" },
+          valueFormatter: function (v) { return v == null ? "-" : fmt(v); }
+        },
+        legend: {
+          bottom: 0, icon: "roundRect", itemWidth: 14, itemHeight: 8,
+          textStyle: { color: "#374151", fontFamily: "inherit", fontSize: 12 }
+        },
+        xAxis: {
+          type: "category", boundaryGap: isBar, data: cfg.labels || [],
+          axisLine: { lineStyle: { color: "#E5E7EB" } }, axisTick: { show: false },
+          axisLabel: { color: "#6B7280", fontFamily: "inherit", fontSize: 12, hideOverlap: true }
+        },
+        yAxis: {
+          type: "value", scale: true,
+          splitLine: { lineStyle: { color: "#F3F4F6" } },
+          axisLabel: { color: "#6B7280", fontFamily: "inherit", fontSize: 12,
+                       formatter: function (v) { return fmt(v); } }
+        },
+        series: series
       },
-      grid: { left: 12, right: 18, top: 78, bottom: 30, containLabel: true },
-      tooltip: {
-        trigger: "axis",
-        backgroundColor: "rgba(17,24,39,0.92)",
-        borderWidth: 0,
-        textStyle: { color: "#fff", fontFamily: "inherit" },
-        valueFormatter: function (v) { return v == null ? "-" : fmt(v); }
-      },
-      legend: {
-        bottom: 0,
-        icon: "roundRect",
-        itemWidth: 14, itemHeight: 8,
-        textStyle: { color: "#374151", fontFamily: "inherit" }
-      },
-      xAxis: {
-        type: "category",
-        boundaryGap: isBar,
-        data: cfg.labels || [],
-        axisLine: { lineStyle: { color: "#E5E7EB" } },
-        axisLabel: { color: "#6B7280", fontFamily: "inherit",
-                     hideOverlap: true },
-        axisTick: { show: false }
-      },
-      yAxis: {
-        type: "value",
-        scale: true,
-        axisLabel: { color: "#6B7280", fontFamily: "inherit",
-                     formatter: function (v) { return fmt(v); } },
-        splitLine: { lineStyle: { color: "#F3F4F6" } }
-      },
-      series: series
+      media: [
+        { // telas estreitas (celular)
+          query: { maxWidth: 560 },
+          option: {
+            title:  { textStyle: { fontSize: 14 }, subtextStyle: { fontSize: 10 } },
+            grid:   { left: 4, right: 8, top: 60, bottom: 22 },
+            legend: { itemWidth: 10, itemHeight: 6, textStyle: { fontSize: 10 } },
+            xAxis:  { axisLabel: { fontSize: 9, hideOverlap: true } },
+            yAxis:  { axisLabel: { fontSize: 9 } }
+          }
+        },
+        { // tablet
+          query: { minWidth: 561, maxWidth: 860 },
+          option: {
+            title:  { textStyle: { fontSize: 16 }, subtextStyle: { fontSize: 11 } },
+            grid:   { top: 68 },
+            xAxis:  { axisLabel: { fontSize: 10 } },
+            yAxis:  { axisLabel: { fontSize: 10 } }
+          }
+        },
+        { // desktop
+          query: { minWidth: 861 },
+          option: {
+            title:  { textStyle: { fontSize: 18 }, subtextStyle: { fontSize: 12 } },
+            grid:   { top: 78 }
+          }
+        }
+      ]
     });
 
     return chart;
   }
 
-  // hex (#RRGGBB) -> rgba string com alpha
-  function hexA(hex, a) {
-    var h = hex.replace("#", "");
-    var r = parseInt(h.substring(0, 2), 16);
-    var g = parseInt(h.substring(2, 4), 16);
-    var b = parseInt(h.substring(4, 6), 16);
-    return "rgba(" + r + "," + g + "," + b + "," + a + ")";
-  }
-
   function boot() {
-    var nodes = document.querySelectorAll(".invista-chart[data-src]");
-    nodes.forEach(function (el) {
+    document.querySelectorAll(".invista-chart[data-src]").forEach(function (el) {
       if (el.__invistaDone) return;
       el.__invistaDone = true;
       fetch(el.getAttribute("data-src"), { cache: "no-store" })
         .then(function (r) { return r.json(); })
         .then(function (cfg) {
           var chart = render(el, cfg);
-          var ro = new ResizeObserver(function () { chart.resize(); });
-          ro.observe(el);
-          window.addEventListener("resize", function () { chart.resize(); });
+          // re-renderiza quando o container muda de tamanho (responsivo)
+          var raf;
+          function doResize() { cancelAnimationFrame(raf); raf = requestAnimationFrame(function () { chart.resize(); }); }
+          new ResizeObserver(doResize).observe(el);
+          window.addEventListener("resize", doResize);
+          window.addEventListener("orientationchange", doResize);
         })
         .catch(function (e) {
-          el.innerHTML = '<div style="color:#9CA3AF;font:14px sans-serif;'
-            + 'display:flex;align-items:center;justify-content:center;'
-            + 'height:100%">Não foi possível carregar o gráfico.</div>';
+          el.innerHTML = '<div style="color:#9CA3AF;font:14px sans-serif;display:flex;'
+            + 'align-items:center;justify-content:center;height:100%">Não foi possível carregar o gráfico.</div>';
           console.error("[invista-chart]", e);
         });
     });
@@ -147,8 +151,6 @@
 
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", boot);
-  } else {
-    boot();
-  }
+  } else { boot(); }
 })();
 </script>

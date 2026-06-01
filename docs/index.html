@@ -10,7 +10,7 @@
   header h1 { font-size: 18px; margin: 0; color: #066B5E; }
   header p { color: #6B7280; font-size: 13px; margin: 6px 0 0; }
   .wrap { max-width: 900px; margin: 0 auto; padding: 16px 24px 48px; }
-  .invista-chart { width: 100%; height: 440px; margin: 24px 0; }
+  .invista-chart { width: 100%; height: clamp(260px, 52vw, 440px); margin: 24px 0; }
 </style>
 </head>
 <body>
@@ -47,22 +47,38 @@
         data:s.data};
     });
     chart.setOption({
-      color:PALETTE,
-      title:{text:cfg.title||"",subtext:cfg.subtitle||"",left:"left",
-        textStyle:{color:"#111827",fontSize:18,fontWeight:600},
-        subtextStyle:{color:"#6B7280",fontSize:12}},
-      grid:{left:12,right:18,top:78,bottom:30,containLabel:true},
-      tooltip:{trigger:"axis",backgroundColor:"rgba(17,24,39,0.92)",borderWidth:0,
-        textStyle:{color:"#fff"},valueFormatter:function(v){return v==null?"-":fmt(v);}},
-      legend:{bottom:0,icon:"roundRect",itemWidth:14,itemHeight:8,textStyle:{color:"#374151"}},
-      xAxis:{type:"category",boundaryGap:isBar,data:cfg.labels||[],
-        axisLine:{lineStyle:{color:"#E5E7EB"}},axisTick:{show:false},
-        axisLabel:{color:"#6B7280",hideOverlap:true}},
-      yAxis:{type:"value",scale:true,splitLine:{lineStyle:{color:"#F3F4F6"}},
-        axisLabel:{color:"#6B7280",formatter:function(v){return fmt(v);}}},
-      series:series
+      baseOption:{
+        color:PALETTE,
+        title:{text:cfg.title||"",subtext:cfg.subtitle||"",left:"left",
+          textStyle:{color:"#111827",fontSize:18,fontWeight:600},
+          subtextStyle:{color:"#6B7280",fontSize:12}},
+        grid:{left:12,right:18,top:78,bottom:28,containLabel:true},
+        tooltip:{trigger:"axis",confine:true,backgroundColor:"rgba(17,24,39,0.92)",borderWidth:0,
+          textStyle:{color:"#fff"},valueFormatter:function(v){return v==null?"-":fmt(v);}},
+        legend:{bottom:0,icon:"roundRect",itemWidth:14,itemHeight:8,textStyle:{color:"#374151",fontSize:12}},
+        xAxis:{type:"category",boundaryGap:isBar,data:cfg.labels||[],
+          axisLine:{lineStyle:{color:"#E5E7EB"}},axisTick:{show:false},
+          axisLabel:{color:"#6B7280",fontSize:12,hideOverlap:true}},
+        yAxis:{type:"value",scale:true,splitLine:{lineStyle:{color:"#F3F4F6"}},
+          axisLabel:{color:"#6B7280",fontSize:12,formatter:function(v){return fmt(v);}}},
+        series:series
+      },
+      media:[
+        {query:{maxWidth:560},option:{
+          title:{textStyle:{fontSize:14},subtextStyle:{fontSize:10}},
+          grid:{left:4,right:8,top:60,bottom:22},
+          legend:{itemWidth:10,itemHeight:6,textStyle:{fontSize:10}},
+          xAxis:{axisLabel:{fontSize:9}},yAxis:{axisLabel:{fontSize:9}}}},
+        {query:{minWidth:561,maxWidth:860},option:{
+          title:{textStyle:{fontSize:16},subtextStyle:{fontSize:11}},
+          grid:{top:68},xAxis:{axisLabel:{fontSize:10}},yAxis:{axisLabel:{fontSize:10}}}},
+        {query:{minWidth:861},option:{
+          title:{textStyle:{fontSize:18},subtextStyle:{fontSize:12}},grid:{top:78}}}
+      ]
     });
-    new ResizeObserver(function(){chart.resize();}).observe(el);
+    var raf;function doResize(){cancelAnimationFrame(raf);raf=requestAnimationFrame(function(){chart.resize();});}
+    new ResizeObserver(doResize).observe(el);
+    window.addEventListener("orientationchange",doResize);
   }
 
   document.querySelectorAll(".invista-chart[data-src]").forEach(function(el){
