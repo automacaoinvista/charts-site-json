@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>inVista — gráfico</title>
+<style>
+  html,body{ margin:0; height:100%; background:#FBF9F0;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; }
+  #chart{ width:100%; height:100%; box-sizing:border-box; padding:22px 24px; }
+</style>
+</head>
+<body>
+<div id="chart" class="invista-chart"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+<script>
+(function () {
+  // ?fund=credito  (mesmo domínio)  ou  ?src=<url completa do JSON>
+  var p = new URLSearchParams(location.search);
+  var src = p.get("src") || ("./" + (p.get("fund") || "credito") + ".json");
+
+  var PALETTE = ["#138A3C", "#ECE600", "#0E9384", "#9CA3AF", "#1F2937"];
+  function hexA(hex,a){var h=hex.replace("#","");return "rgba("+parseInt(h.substr(0,2),16)+","+parseInt(h.substr(2,2),16)+","+parseInt(h.substr(4,2),16)+","+a+")";}
+  function fmtPct(v){return v.toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2})+"%";}
+  function fmtIdx(v){return v.toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2});}
+
+  function render(el,cfg){
+    var isPct=cfg.mode==="monthly"||cfg.mode==="cumulative_pct";
+    var isBar=(cfg.type||(cfg.mode==="monthly"?"bar":"line"))==="bar";
+    var fmt=isPct?fmtPct:fmtIdx;
+    var labels=cfg.labels||[]; var last=labels.length-1;
+    var endpoints=cfg.xEndpoints; var hideY=!!cfg.hideYAxis;
+    var chart=echarts.init(el);
+    var series=(cfg.series||[]).map(function(s,i){
+      var color=s.color||PALETTE[i%PALETTE.length];
+      return {name:s.name,type:isBar?"bar":"line",smooth:!isBar,showSymbol:false,
+        lineStyle:{width:3},itemStyle:{color:color},emphasis:{focus:"series"},
+        areaStyle:(cfg.area&&!isBar&&i===0)?{color:new echarts.graphic.LinearGradient(0,0,0,1,[
+          {offset:0,color:hexA(color,0.18)},{offset:1,color:hexA(color,0)}])}:undefined,
+        data:s.data};
+    });
+    var xAxisLabel=endpoints?{interval:0,margin:14,showMinLabel:true,showMaxLabel:true,
+        alignMinLabel:"left",alignMaxLabel:"right",color:"#0E2A38",fontWeight:600,fontSize:13,
+        formatter:function(val,idx){if(idx===0)return endpoints[0];if(idx===last)return endpoints[1]||"";return "";}}
+      :{color:"#6B7280",fontSize:12,hideOverlap:true};
+    chart.setOption({
+      baseOption:{
+        color:PALETTE,
+        title:{text:cfg.title||"",subtext:cfg.subtitle||"",left:0,top:0,itemGap:8,
+          textStyle:{color:"#0E2A38",fontSize:26,fontWeight:800},
+          subtextStyle:{color:"#6B7280",fontSize:13}},
+        grid:{left:2,right:6,top:92,bottom:54,containLabel:true},
+        tooltip:{trigger:"axis",confine:true,backgroundColor:"rgba(14,42,56,0.94)",borderWidth:0,
+          textStyle:{color:"#fff"},valueFormatter:function(v){return v==null?"-":fmt(v);}},
+        legend:{bottom:0,left:0,icon:"circle",itemWidth:11,itemHeight:11,itemGap:22,
+          textStyle:{color:"#1F2937",fontSize:13}},
+        xAxis:{type:"category",boundaryGap:isBar,data:labels,axisTick:{show:false},
+          axisLine:{show:true,lineStyle:{color:"#E7E1D0"}},axisLabel:xAxisLabel},
+        yAxis:{type:"value",scale:true,show:!hideY,axisLine:{show:false},axisTick:{show:false},
+          splitLine:{show:!hideY,lineStyle:{color:"#F0EBDC"}},
+          axisLabel:{show:!hideY,color:"#6B7280",fontSize:12,formatter:function(v){return fmt(v);}}},
+        series:series
+      },
+      media:[
+        {query:{maxWidth:560},option:{title:{textStyle:{fontSize:20},subtextStyle:{fontSize:11}},
+          grid:{top:72,bottom:102},
+          legend:{orient:"vertical",left:0,itemGap:10,itemWidth:10,itemHeight:10,
+            textStyle:{fontSize:11,width:230,overflow:"break",lineHeight:15}},
+          xAxis:{axisLabel:{fontSize:endpoints?12:9}},yAxis:{axisLabel:{fontSize:9}}}},
+        {query:{minWidth:561,maxWidth:860},option:{title:{textStyle:{fontSize:23}},
+          grid:{top:84,bottom:54},legend:{orient:"horizontal"},xAxis:{axisLabel:{fontSize:endpoints?13:10}}}},
+        {query:{minWidth:861},option:{title:{textStyle:{fontSize:26}},grid:{top:92,bottom:54},legend:{orient:"horizontal"}}}
+      ]
+    });
+    var raf;function doResize(){cancelAnimationFrame(raf);raf=requestAnimationFrame(function(){chart.resize();});}
+    new ResizeObserver(doResize).observe(el);
+    window.addEventListener("orientationchange",doResize);
+  }
+
+  fetch(src,{cache:"no-store"})
+    .then(function(r){return r.json();})
+    .then(function(cfg){render(document.getElementById("chart"),cfg);})
+    .catch(function(e){
+      document.getElementById("chart").innerHTML='<div style="color:#9CA3AF;font:14px sans-serif;'
+        +'display:flex;align-items:center;justify-content:center;height:100%">Não foi possível carregar o gráfico.</div>';
+      console.error("[invista-chart]",e);
+    });
+})();
+</script>
+</body>
+</html>
