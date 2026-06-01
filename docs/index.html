@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>inVista — Preview dos gráficos</title>
+<style>
+  body { font-family: system-ui, sans-serif; margin: 0; background: #fff; color: #111827; }
+  header { padding: 28px 24px 8px; }
+  header h1 { font-size: 18px; margin: 0; color: #066B5E; }
+  header p { color: #6B7280; font-size: 13px; margin: 6px 0 0; }
+  .wrap { max-width: 900px; margin: 0 auto; padding: 16px 24px 48px; }
+  .invista-chart { width: 100%; height: 440px; margin: 24px 0; }
+</style>
+</head>
+<body>
+<header class="wrap">
+  <h1>inVista · Preview dos gráficos</h1>
+  <p>Página de teste. Cada gráfico carrega seu JSON desta mesma pasta.</p>
+</header>
+
+<main class="wrap">
+  <!-- adicione uma div por fundo, trocando data-src -->
+  <div class="invista-chart" data-src="./credito.json"></div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+<script>
+(function () {
+  var PALETTE = ["#066B5E", "#D6E94B", "#0E9384", "#9CA3AF", "#1F2937"];
+  function hexA(hex, a){var h=hex.replace("#","");return "rgba("+parseInt(h.substr(0,2),16)+","+parseInt(h.substr(2,2),16)+","+parseInt(h.substr(4,2),16)+","+a+")";}
+  function fmtPct(v){return v.toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2})+"%";}
+  function fmtIdx(v){return v.toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2});}
+
+  function render(el,cfg){
+    var isCumulative = (cfg.mode||"").indexOf("cumulative")===0;
+    var isPct = cfg.mode==="monthly"||cfg.mode==="cumulative_pct";
+    var isBar = (cfg.type||(cfg.mode==="monthly"?"bar":"line"))==="bar";
+    var fmt = isPct?fmtPct:fmtIdx;
+    var chart = echarts.init(el);
+    var series=(cfg.series||[]).map(function(s,i){
+      var color=s.color||PALETTE[i%PALETTE.length];
+      return {name:s.name,type:isBar?"bar":"line",smooth:!isBar,showSymbol:false,
+        lineStyle:{width:2.5},itemStyle:{color:color},emphasis:{focus:"series"},
+        areaStyle:(!isBar&&i===0&&isCumulative)?{color:new echarts.graphic.LinearGradient(0,0,0,1,[
+          {offset:0,color:hexA(color,0.18)},{offset:1,color:hexA(color,0)}])}:undefined,
+        data:s.data};
+    });
+    chart.setOption({
+      color:PALETTE,
+      title:{text:cfg.title||"",subtext:cfg.subtitle||"",left:"left",
+        textStyle:{color:"#111827",fontSize:18,fontWeight:600},
+        subtextStyle:{color:"#6B7280",fontSize:12}},
+      grid:{left:12,right:18,top:78,bottom:30,containLabel:true},
+      tooltip:{trigger:"axis",backgroundColor:"rgba(17,24,39,0.92)",borderWidth:0,
+        textStyle:{color:"#fff"},valueFormatter:function(v){return v==null?"-":fmt(v);}},
+      legend:{bottom:0,icon:"roundRect",itemWidth:14,itemHeight:8,textStyle:{color:"#374151"}},
+      xAxis:{type:"category",boundaryGap:isBar,data:cfg.labels||[],
+        axisLine:{lineStyle:{color:"#E5E7EB"}},axisTick:{show:false},
+        axisLabel:{color:"#6B7280",hideOverlap:true}},
+      yAxis:{type:"value",scale:true,splitLine:{lineStyle:{color:"#F3F4F6"}},
+        axisLabel:{color:"#6B7280",formatter:function(v){return fmt(v);}}},
+      series:series
+    });
+    new ResizeObserver(function(){chart.resize();}).observe(el);
+  }
+
+  document.querySelectorAll(".invista-chart[data-src]").forEach(function(el){
+    fetch(el.getAttribute("data-src"),{cache:"no-store"})
+      .then(function(r){return r.json();})
+      .then(function(cfg){render(el,cfg);})
+      .catch(function(e){el.textContent="Falha ao carregar.";console.error(e);});
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,154 @@
+<!--
+  ============================================================================
+  COMPONENTE ECHARTS GENÉRICO — inVista
+  ----------------------------------------------------------------------------
+  COMO USAR NO WEBFLOW:
+  1) Adicione um elemento "Embed" (HTML Embed) onde quer o gráfico.
+  2) Cole TODO este bloco no primeiro gráfico da página.
+     Para gráficos adicionais, basta colar só a <div class="invista-chart" ...>
+     com a URL do JSON — o script já é carregado uma vez e serve todos.
+  3) Troque o data-src pela URL pública do JSON do fundo.
+
+  Para atualizar os dados, NINGUÉM mexe no Webflow: basta atualizar o Excel.
+  ============================================================================
+-->
+
+<!-- 1 gráfico = 1 div. Repita a div trocando data-src para mais fundos. -->
+<div class="invista-chart"
+     data-src="https://SEU-USUARIO.github.io/SEU-REPO/credito.json"
+     style="width:100%;height:420px;"></div>
+
+<!-- ECharts (CDN) -->
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+
+<script>
+(function () {
+  // evita inicializar duas vezes se o bloco for colado mais de uma vez
+  if (window.__invistaChartsInit) return;
+  window.__invistaChartsInit = true;
+
+  var BRAND = "#066B5E";
+  var PALETTE = ["#066B5E", "#D6E94B", "#0E9384", "#9CA3AF", "#1F2937"];
+
+  function fmtPct(v) {
+    return (v >= 0 ? "" : "") + v.toLocaleString("pt-BR",
+      { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + "%";
+  }
+  function fmtIndex(v) {
+    return v.toLocaleString("pt-BR",
+      { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+
+  function render(el, cfg) {
+    var isCumulative = (cfg.mode || "").indexOf("cumulative") === 0;
+    var isPct = cfg.mode === "monthly" || cfg.mode === "cumulative_pct";
+    var fmt = isPct ? fmtPct : fmtIndex;
+    var isBar = (cfg.type || (cfg.mode === "monthly" ? "bar" : "line")) === "bar";
+
+    var chart = echarts.init(el, null, { renderer: "canvas" });
+
+    var series = (cfg.series || []).map(function (s, i) {
+      var color = s.color || PALETTE[i % PALETTE.length];
+      return {
+        name: s.name,
+        type: isBar ? "bar" : "line",
+        smooth: !isBar,
+        symbol: "circle",
+        symbolSize: 6,
+        showSymbol: false,
+        lineStyle: { width: 2.5 },
+        itemStyle: { color: color },
+        emphasis: { focus: "series" },
+        areaStyle: (!isBar && i === 0 && isCumulative)
+          ? { color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
+              { offset: 0, color: hexA(color, 0.18) },
+              { offset: 1, color: hexA(color, 0.0) }]) }
+          : undefined,
+        data: s.data
+      };
+    });
+
+    chart.setOption({
+      color: PALETTE,
+      title: {
+        text: cfg.title || "",
+        subtext: cfg.subtitle || "",
+        left: "left",
+        textStyle: { color: "#111827", fontSize: 18, fontWeight: 600,
+                     fontFamily: "inherit" },
+        subtextStyle: { color: "#6B7280", fontSize: 12, fontFamily: "inherit" }
+      },
+      grid: { left: 12, right: 18, top: 78, bottom: 30, containLabel: true },
+      tooltip: {
+        trigger: "axis",
+        backgroundColor: "rgba(17,24,39,0.92)",
+        borderWidth: 0,
+        textStyle: { color: "#fff", fontFamily: "inherit" },
+        valueFormatter: function (v) { return v == null ? "-" : fmt(v); }
+      },
+      legend: {
+        bottom: 0,
+        icon: "roundRect",
+        itemWidth: 14, itemHeight: 8,
+        textStyle: { color: "#374151", fontFamily: "inherit" }
+      },
+      xAxis: {
+        type: "category",
+        boundaryGap: isBar,
+        data: cfg.labels || [],
+        axisLine: { lineStyle: { color: "#E5E7EB" } },
+        axisLabel: { color: "#6B7280", fontFamily: "inherit",
+                     hideOverlap: true },
+        axisTick: { show: false }
+      },
+      yAxis: {
+        type: "value",
+        scale: true,
+        axisLabel: { color: "#6B7280", fontFamily: "inherit",
+                     formatter: function (v) { return fmt(v); } },
+        splitLine: { lineStyle: { color: "#F3F4F6" } }
+      },
+      series: series
+    });
+
+    return chart;
+  }
+
+  // hex (#RRGGBB) -> rgba string com alpha
+  function hexA(hex, a) {
+    var h = hex.replace("#", "");
+    var r = parseInt(h.substring(0, 2), 16);
+    var g = parseInt(h.substring(2, 4), 16);
+    var b = parseInt(h.substring(4, 6), 16);
+    return "rgba(" + r + "," + g + "," + b + "," + a + ")";
+  }
+
+  function boot() {
+    var nodes = document.querySelectorAll(".invista-chart[data-src]");
+    nodes.forEach(function (el) {
+      if (el.__invistaDone) return;
+      el.__invistaDone = true;
+      fetch(el.getAttribute("data-src"), { cache: "no-store" })
+        .then(function (r) { return r.json(); })
+        .then(function (cfg) {
+          var chart = render(el, cfg);
+          var ro = new ResizeObserver(function () { chart.resize(); });
+          ro.observe(el);
+          window.addEventListener("resize", function () { chart.resize(); });
+        })
+        .catch(function (e) {
+          el.innerHTML = '<div style="color:#9CA3AF;font:14px sans-serif;'
+            + 'display:flex;align-items:center;justify-content:center;'
+            + 'height:100%">Não foi possível carregar o gráfico.</div>';
+          console.error("[invista-chart]", e);
+        });
+    });
+  }
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", boot);
+  } else {
+    boot();
+  }
+})();
+</script>

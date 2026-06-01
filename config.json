@@ -1,0 +1,20 @@
+{
+  "funds": [
+    {
+      "output": "credito",
+      "title": "Rentabilidades Mensais (Dólar)",
+      "subtitle": "*Líquido de todas as taxas",
+      "share_url": "https://invistame.sharepoint.com/:x:/s/dir-gestaodeportfolio/IQC2TvQxWPROQrN6RpzADX7zAVW9m9kgAkHZnzFxcxHbQLg?e=ZOuEwc",
+      "drive_id": "b!3QL0CqlJ90SG68LvhbvaXs5AsRc5nPxHnXRCfGFMbNLmfRBaKRKFRrFKuhYauHRZ",
+      "item_id": "016WVL7FVWJ32DCWHUJZBLG6SGTTAA27XT",
+      "table": "Rentabilidade_Consolidada",
+      "date_column": "Data",
+      "mode": "monthly",
+      "chart_type": "line",
+      "series": [
+        { "column": "Rent. US Credit", "name": "US Credit", "color": "#066B5E" },
+        { "column": "Rent. USHY", "name": "US High Yield", "color": "#D6E94B" }
+      ]
+    }
+  ]
+}
