@@ -47,11 +47,12 @@ Abra `docs/index.html` pra ver os gráficos.
 3. Em **Settings → Pages**, em *Build and deployment*, selecione **GitHub Actions**.
 4. Em **Actions**, rode o workflow *"Atualizar JSON dos gráficos"* (botão *Run workflow*).
 
-As URLs públicas ficam:
+As URLs públicas (repositório já configurado) são:
 
 ```
-https://SEU-USUARIO.github.io/SEU-REPO/credito.json
-https://SEU-USUARIO.github.io/SEU-REPO/index.json   (lista dos fundos)
+https://automacaoinvista.github.io/charts-site-json/credito.json
+https://automacaoinvista.github.io/charts-site-json/index.json   (lista dos fundos)
+https://automacaoinvista.github.io/charts-site-json/             (página de preview)
 ```
 
 > **Domínio próprio (opcional):** para `https://charts.invista.me/...`, em
