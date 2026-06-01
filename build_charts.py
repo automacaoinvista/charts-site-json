@@ -147,6 +147,8 @@ def build_fund(headers, fund):
         "subtitle": fund["subtitle"],
         "mode": fund["mode"],
         "type": chart_type,
+        "xEndpoints": fund.get("x_endpoints"),   # ex: ["Início","Atual"] ou null
+        "hideYAxis": fund.get("hide_y_axis", False),
         "labels": labels,
         "series": series,
         "updatedAt": os.environ.get("BUILD_TIME", ""),

@@ -9,11 +9,13 @@
       "item_id": "016WVL7FVWJ32DCWHUJZBLG6SGTTAA27XT",
       "table": "Rentabilidade_Consolidada",
       "date_column": "Data",
-      "mode": "monthly",
+      "mode": "cumulative_100",
       "chart_type": "line",
+      "x_endpoints": ["Início", "Atual"],
+      "hide_y_axis": true,
       "series": [
-        { "column": "Rent. US Credit", "name": "US Credit", "color": "#066B5E" },
-        { "column": "Rent. USHY", "name": "US High Yield", "color": "#D6E94B" }
+        { "column": "Rent. US Credit", "name": "Retorno da Estratégia", "color": "#138A3C" },
+        { "column": "Rent. USHY", "name": "Retorno USHY - iShares Broad USD High Yield Corp Bd ETF", "color": "#ECE600" }
       ]
     }
   ]

@@ -5,20 +5,30 @@
   COMO USAR NO WEBFLOW:
   1) Adicione um elemento "Embed" (HTML Embed) onde quer o gráfico.
   2) Cole TODO este bloco no PRIMEIRO gráfico da página.
-     Para gráficos adicionais, cole só a <div class="invista-chart" data-src="...">
-     — o script já carregado serve todos.
+     Para gráficos adicionais, cole só a <div class="invista-card"> com a
+     <div class="invista-chart" data-src="..."> dentro — o script serve todos.
   3) Troque o data-src pela URL pública do JSON do fundo.
 
-  Responsivo: a altura é fluida (clamp) e o gráfico re-renderiza ao redimensionar.
-  No celular as fontes e eixos encolhem automaticamente (media queries do ECharts).
-  Para atualizar os dados, NINGUÉM mexe no Webflow: basta atualizar o Excel.
+  O visual (cores, nomes, eixos Início/Atual, esconder eixo Y) vem do JSON,
+  controlado pelo config.json. Para atualizar os dados, NINGUÉM mexe no Webflow.
   ============================================================================
 -->
 
-<!-- 1 gráfico = 1 div. Altura fluida: mín 260px, ~52% da largura, máx 440px. -->
-<div class="invista-chart"
-     data-src="https://automacaoinvista.github.io/charts-site-json/credito.json"
-     style="width:100%;height:clamp(260px,52vw,440px);"></div>
+<div class="invista-card">
+  <div class="invista-chart"
+       data-src="https://automacaoinvista.github.io/charts-site-json/credito.json"></div>
+</div>
+
+<style>
+  .invista-card{
+    background:#FBF9F0;
+    border:1px solid #EFE9D8;
+    border-radius:18px;
+    padding:22px 24px;
+    box-sizing:border-box;
+  }
+  .invista-chart{ width:100%; height:clamp(300px,46vw,440px); }
+</style>
 
 <script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
 <script>
@@ -26,7 +36,7 @@
   if (window.__invistaChartsInit) return;
   window.__invistaChartsInit = true;
 
-  var PALETTE = ["#066B5E", "#D6E94B", "#0E9384", "#9CA3AF", "#1F2937"];
+  var PALETTE = ["#138A3C", "#ECE600", "#0E9384", "#9CA3AF", "#1F2937"];
   function fmtPct(v){return v.toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2})+"%";}
   function fmtIndex(v){return v.toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2});}
   function hexA(hex,a){var h=hex.replace("#","");return "rgba("+parseInt(h.substr(0,2),16)+","+parseInt(h.substr(2,2),16)+","+parseInt(h.substr(4,2),16)+","+a+")";}
@@ -36,6 +46,10 @@
     var isPct = cfg.mode === "monthly" || cfg.mode === "cumulative_pct";
     var fmt = isPct ? fmtPct : fmtIndex;
     var isBar = (cfg.type || (cfg.mode === "monthly" ? "bar" : "line")) === "bar";
+    var labels = cfg.labels || [];
+    var last = labels.length - 1;
+    var endpoints = cfg.xEndpoints;            // ex: ["Início","Atual"] ou null
+    var hideY = !!cfg.hideYAxis;
 
     var chart = echarts.init(el, null, { renderer: "canvas" });
 
@@ -48,10 +62,10 @@
         showSymbol: false,
         symbol: "circle",
         symbolSize: 6,
-        lineStyle: { width: 2.5 },
+        lineStyle: { width: 3 },
         itemStyle: { color: color },
         emphasis: { focus: "series" },
-        areaStyle: (!isBar && i === 0 && isCumulative)
+        areaStyle: (cfg.area && !isBar && i === 0)
           ? { color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [
               { offset: 0, color: hexA(color, 0.18) },
               { offset: 1, color: hexA(color, 0.0) }]) }
@@ -60,66 +74,77 @@
       };
     });
 
-    // ---- baseOption = desktop; media = ajustes por largura ----
+    // eixo X: "Início/Atual" nas pontas OU rótulos de mês
+    var xAxisLabel = endpoints
+      ? {
+          interval: 0, margin: 14,
+          showMinLabel: true, showMaxLabel: true,
+          alignMinLabel: "left", alignMaxLabel: "right",
+          color: "#0E2A38", fontWeight: 600, fontSize: 13, fontFamily: "inherit",
+          formatter: function (val, idx) {
+            if (idx === 0) return endpoints[0];
+            if (idx === last) return endpoints[1] || "";
+            return "";
+          }
+        }
+      : { color: "#6B7280", fontFamily: "inherit", fontSize: 12, hideOverlap: true };
+
     chart.setOption({
       baseOption: {
         color: PALETTE,
         title: {
-          text: cfg.title || "", subtext: cfg.subtitle || "", left: "left",
-          textStyle: { color: "#111827", fontSize: 18, fontWeight: 600, fontFamily: "inherit" },
+          text: cfg.title || "", subtext: cfg.subtitle || "", left: 0, top: 0,
+          textStyle: { color: "#0E2A38", fontSize: 20, fontWeight: 700, fontFamily: "inherit" },
           subtextStyle: { color: "#6B7280", fontSize: 12, fontFamily: "inherit" }
         },
-        grid: { left: 12, right: 18, top: 78, bottom: 28, containLabel: true },
+        grid: { left: 2, right: 6, top: 78, bottom: 54, containLabel: true },
         tooltip: {
           trigger: "axis", confine: true,
-          backgroundColor: "rgba(17,24,39,0.92)", borderWidth: 0,
+          backgroundColor: "rgba(14,42,56,0.94)", borderWidth: 0,
           textStyle: { color: "#fff", fontFamily: "inherit" },
           valueFormatter: function (v) { return v == null ? "-" : fmt(v); }
         },
         legend: {
-          bottom: 0, icon: "roundRect", itemWidth: 14, itemHeight: 8,
-          textStyle: { color: "#374151", fontFamily: "inherit", fontSize: 12 }
+          bottom: 0, left: 0, icon: "circle",
+          itemWidth: 11, itemHeight: 11, itemGap: 22,
+          textStyle: { color: "#1F2937", fontFamily: "inherit", fontSize: 13 }
         },
         xAxis: {
-          type: "category", boundaryGap: isBar, data: cfg.labels || [],
-          axisLine: { lineStyle: { color: "#E5E7EB" } }, axisTick: { show: false },
-          axisLabel: { color: "#6B7280", fontFamily: "inherit", fontSize: 12, hideOverlap: true }
+          type: "category", boundaryGap: isBar, data: labels,
+          axisTick: { show: false },
+          axisLine: { show: true, lineStyle: { color: "#E7E1D0" } },
+          axisLabel: xAxisLabel
         },
         yAxis: {
           type: "value", scale: true,
-          splitLine: { lineStyle: { color: "#F3F4F6" } },
-          axisLabel: { color: "#6B7280", fontFamily: "inherit", fontSize: 12,
-                       formatter: function (v) { return fmt(v); } }
+          show: !hideY,
+          axisLine: { show: false }, axisTick: { show: false },
+          splitLine: { show: !hideY, lineStyle: { color: "#F0EBDC" } },
+          axisLabel: { show: !hideY, color: "#6B7280", fontFamily: "inherit",
+                       fontSize: 12, formatter: function (v) { return fmt(v); } }
         },
         series: series
       },
       media: [
-        { // telas estreitas (celular)
-          query: { maxWidth: 560 },
-          option: {
-            title:  { textStyle: { fontSize: 14 }, subtextStyle: { fontSize: 10 } },
-            grid:   { left: 4, right: 8, top: 60, bottom: 22 },
-            legend: { itemWidth: 10, itemHeight: 6, textStyle: { fontSize: 10 } },
-            xAxis:  { axisLabel: { fontSize: 9, hideOverlap: true } },
+        { query: { maxWidth: 560 }, option: {
+            title:  { textStyle: { fontSize: 16 }, subtextStyle: { fontSize: 10 } },
+            grid:   { top: 60, bottom: 102 },
+            legend: { orient: "vertical", left: 0, itemGap: 10, itemWidth: 10, itemHeight: 10,
+                      textStyle: { fontSize: 11, width: 230, overflow: "break", lineHeight: 15 } },
+            xAxis:  { axisLabel: { fontSize: endpoints ? 12 : 9 } },
             yAxis:  { axisLabel: { fontSize: 9 } }
-          }
-        },
-        { // tablet
-          query: { minWidth: 561, maxWidth: 860 },
-          option: {
-            title:  { textStyle: { fontSize: 16 }, subtextStyle: { fontSize: 11 } },
-            grid:   { top: 68 },
-            xAxis:  { axisLabel: { fontSize: 10 } },
-            yAxis:  { axisLabel: { fontSize: 10 } }
-          }
-        },
-        { // desktop
-          query: { minWidth: 861 },
-          option: {
-            title:  { textStyle: { fontSize: 18 }, subtextStyle: { fontSize: 12 } },
-            grid:   { top: 78 }
-          }
-        }
+        }},
+        { query: { minWidth: 561, maxWidth: 860 }, option: {
+            title:  { textStyle: { fontSize: 18 } },
+            grid:   { top: 70, bottom: 54 },
+            legend: { orient: "horizontal" },
+            xAxis:  { axisLabel: { fontSize: endpoints ? 13 : 10 } }
+        }},
+        { query: { minWidth: 861 }, option: {
+            title:  { textStyle: { fontSize: 20 } },
+            grid:   { top: 78, bottom: 54 },
+            legend: { orient: "horizontal" }
+        }}
       ]
     });
 
@@ -134,9 +159,8 @@
         .then(function (r) { return r.json(); })
         .then(function (cfg) {
           var chart = render(el, cfg);
-          // re-renderiza quando o container muda de tamanho (responsivo)
           var raf;
-          function doResize() { cancelAnimationFrame(raf); raf = requestAnimationFrame(function () { chart.resize(); }); }
+          function doResize(){ cancelAnimationFrame(raf); raf = requestAnimationFrame(function(){ chart.resize(); }); }
           new ResizeObserver(doResize).observe(el);
           window.addEventListener("resize", doResize);
           window.addEventListener("orientationchange", doResize);
