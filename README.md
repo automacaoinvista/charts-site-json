@@ -1,6 +1,7 @@
-# Gráficos institucionais inVista — Excel → JSON → Webflow (ECharts)
+# Gráficos institucionais inVista — Excel → JSON → Webflow (Highcharts)
 
-Arquitetura **100% gratuita**, sem Power Automate e sem Azure pago:
+Arquitetura sem Power Automate e sem Azure pago (a ingestão/publicação é gratuita;
+a renderização usa **Highcharts**, que exige licença comercial — ver seção 7):
 
 ```
 Excel Online (SharePoint)
@@ -9,7 +10,7 @@ Excel Online (SharePoint)
 build_charts.py  ──►  docs/*.json
         │  GitHub Actions (cron de hora em hora)
         ▼
-GitHub Pages (URL pública)  ──►  Webflow + Apache ECharts
+GitHub Pages (URL pública)  ──►  Webflow + Highcharts
 ```
 
 O time **só atualiza o Excel**. O GitHub Actions lê a planilha, gera os JSON e
@@ -24,7 +25,7 @@ publica. O Webflow nunca precisa ser editado.
 | `config.json` | Lista de fundos: tabela, colunas, cores, título e modo do gráfico |
 | `build_charts.py` | Lê o Excel via Graph e gera `docs/<fundo>.json` |
 | `docs/` | O que o GitHub Pages publica (JSONs + página de preview) |
-| `webflow/echarts-embed.html` | Componente ECharts genérico pra colar no Webflow |
+| `webflow/highcharts-embed.html` | Componente Highcharts genérico pra colar no Webflow |
 | `.github/workflows/build.yml` | Automação (cron + deploy do Pages) |
 
 ## 2. Rodar localmente (teste)
@@ -61,7 +62,7 @@ https://automacaoinvista.github.io/charts-site-json/             (página de pre
 
 ## 4. Usar no Webflow
 
-1. Num **HTML Embed**, cole `webflow/echarts-embed.html`.
+1. Num **HTML Embed**, cole `webflow/highcharts-embed.html`.
 2. Troque o `data-src` pela URL pública do JSON.
 3. Mais gráficos na mesma página = só repetir a `<div class="invista-chart" data-src="...">`.
 
@@ -84,3 +85,18 @@ Comite — o Actions gera `docs/<output>.json` automaticamente.
 - Em produção, as credenciais ficam só nos **Secrets** do GitHub.
 - **Rotacione o client secret** (você já mencionou) e atualize o secret no GitHub.
 - Permissão Graph necessária: `Sites.Read.All` ou `Files.Read.All` (application).
+
+## 7. Licença do Highcharts
+
+Os gráficos são renderizados com **[Highcharts](https://highcharts.com)**. Uso
+comercial (site institucional de gestora) **exige licença Highcharts válida**:
+
+- A partir de ~US$ 500/desenvolvedor (licença única) + manutenção anual.
+- O código usa `credits.enabled:false` (remove a marca "Highcharts.com"). Isso
+  **só é permitido sob licença paga** — sem licença, a marca deve permanecer.
+- Versão carregada via CDN `https://code.highcharts.com/highcharts.js` (rolling).
+  Para reprodutibilidade, fixe a versão (ex.: `/11.4.8/highcharts.js`).
+
+> Alternativa gratuita (Apache 2.0): Apache ECharts. O formato dos JSON é
+> agnóstico de biblioteca — só o renderer (`docs/embed.html`,
+> `docs/index.html`, `webflow/highcharts-embed.html`) precisaria voltar a ECharts.
