@@ -10,7 +10,7 @@
   header h1 { font-size: 18px; margin: 0; color: #138A3C; }
   header p { color: #6B7280; font-size: 13px; margin: 6px 0 0; }
   .wrap { max-width: 820px; margin: 0 auto; padding: 16px 24px 48px; }
-  .invista-card { background:#FBF9F0; border:1px solid #EFE9D8; border-radius:18px; padding:22px 24px; box-sizing:border-box; margin:24px 0; }
+  .invista-card { font-family:"Inter",system-ui,sans-serif; background:#FBF9F0; border:1px solid #EFE9D8; border-radius:18px; padding:22px 24px; box-sizing:border-box; margin:24px 0; }
   .fund-slug { color:#9CA3AF; font-size:11px; margin:0 0 6px; font-family:monospace; }
   .invista-bench-toggle { display:flex; gap:6px; justify-content:flex-end; margin:0 0 4px; flex-wrap:wrap; }
   .invista-bench-toggle button { border:1px solid #E7E1D0; background:#fff; color:#1F2937;
@@ -79,7 +79,7 @@
     });
 
     return Highcharts.chart(el, {
-      chart: { backgroundColor: "transparent", style: { fontFamily: "inherit" },
+      chart: { backgroundColor: "transparent", style: { fontFamily: '"Inter", system-ui, sans-serif' },
         spacingLeft: endpoints ? 24 : 2, spacingRight: endpoints ? 24 : 6 },
       credits: { enabled: false },
       title: { text: cfg.title || "", align: "left", margin: 6,

@@ -6,7 +6,7 @@
 <title>inVista — gráfico</title>
 <style>
   html,body{ margin:0; height:100%; background:#FBF9F0;
-    font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; }
+    font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; }
   #chart{ width:100%; height:100%; box-sizing:border-box; padding:22px 24px; }
   .invista-bench-toggle{ display:flex; gap:6px; justify-content:flex-end;
     padding:12px 24px 0; flex-wrap:wrap; }
@@ -71,7 +71,7 @@
     });
 
     return Highcharts.chart(el, {
-      chart: { backgroundColor: "transparent", style: { fontFamily: "inherit" },
+      chart: { backgroundColor: "transparent", style: { fontFamily: '"Inter", system-ui, sans-serif' },
         spacingLeft: endpoints ? 24 : 2, spacingRight: endpoints ? 24 : 6 },
       credits: { enabled: false },
       title: { text: cfg.title || "", align: "left", margin: 6,

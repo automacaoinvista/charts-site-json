@@ -1,10 +1,6 @@
 /* inVista Charts — motor auto-contido (https://charts.automacaoinvista.me/embed.js)
-   Cole no Webflow (HTML Embed) o snippet completo por elemento:
-     <div class="invista-card">
-       <div class="invista-chart" data-src="https://charts.automacaoinvista.me/<fundo>.json"></div>
-     </div>
-     <script src="https://charts.automacaoinvista.me/embed.js" defer></script>
-   Pode repetir em varios embeds na mesma pagina — o motor carrega uma vez so.
+   Cole no Webflow (HTML Embed) o snippet completo por elemento — ver webflow/snippets.md.
+   Pode repetir em varios embeds na mesma pagina; o motor carrega uma vez so.
    Highcharts: uso comercial exige licenca valida (ver README). */
 (function () {
   if (window.__invistaEmbedJs) {
@@ -14,7 +10,7 @@
   window.__invistaEmbedJs = true;
 
   var st = document.createElement("style");
-  st.textContent = ".invista-card{\n    background:#FBF9F0;\n    border:1px solid #EFE9D8;\n    border-radius:18px;\n    padding:22px 24px;\n    box-sizing:border-box;\n  }\n  .invista-chart{ width:100%; height:clamp(300px,46vw,440px); }\n  .invista-bench-toggle{ display:flex; gap:6px; justify-content:flex-end; margin:0 0 4px; flex-wrap:wrap; }\n  .invista-bench-toggle button{ border:1px solid #E7E1D0; background:#fff; color:#1F2937;\n    font-family:inherit; font-size:13px; font-weight:500; line-height:1; padding:8px 14px;\n    border-radius:999px; cursor:pointer; }\n  .invista-bench-toggle button.active{ background:#0E2A38; color:#fff; border-color:#0E2A38; }\n  .invista-table-head{ display:flex; justify-content:flex-start; align-items:center;\n    gap:16px; flex-wrap:wrap; margin:0 0 12px; }\n  .invista-table-head h3{ margin:0; color:#0E2A38; font-size:22px; font-weight:800;\n    font-family:\"PP Watch\",\"PPWatch\",Georgia,serif; }\n  .invista-table-scroll{ overflow-x:auto; }\n  .invista-table table{ width:100%; border-collapse:collapse; font-size:11.5px;\n    color:#1F2937; }\n  .invista-table th, .invista-table td{ padding:8px 4px; text-align:right;\n    border-bottom:1px solid #EFE9D8; white-space:nowrap; }\n  .invista-table thead th{ color:#0E2A38; font-weight:700; }\n  .invista-table tbody th{ text-align:left; font-weight:700; color:#0E2A38; }\n  .invista-table td.sep, .invista-table th.sep{ border-left:1px solid #EFE9D8; font-weight:600; }";
+  st.textContent = ".invista-card{ font-family:\"Inter\",system-ui,sans-serif;\n    background:#FBF9F0;\n    border:1px solid #EFE9D8;\n    border-radius:18px;\n    padding:22px 24px;\n    box-sizing:border-box;\n  }\n  .invista-chart{ width:100%; height:clamp(300px,46vw,440px); }\n  .invista-bench-toggle{ display:flex; gap:6px; justify-content:flex-end; margin:0 0 4px; flex-wrap:wrap; }\n  .invista-bench-toggle button{ border:1px solid #E7E1D0; background:#fff; color:#1F2937;\n    font-family:inherit; font-size:13px; font-weight:500; line-height:1; padding:8px 14px;\n    border-radius:999px; cursor:pointer; }\n  .invista-bench-toggle button.active{ background:#0E2A38; color:#fff; border-color:#0E2A38; }\n  .invista-table-head{ display:flex; justify-content:flex-start; align-items:center;\n    gap:16px; flex-wrap:wrap; margin:0 0 12px; }\n  .invista-table-head h3{ margin:0; color:#0E2A38; font-size:22px; font-weight:800;\n    font-family:\"PP Watch\",\"PPWatch\",Georgia,serif; }\n  .invista-table-scroll{ overflow-x:auto; }\n  .invista-table table{ width:100%; border-collapse:collapse; font-size:11.5px;\n    color:#1F2937; }\n  .invista-table th, .invista-table td{ padding:8px 4px; text-align:right;\n    border-bottom:1px solid #EFE9D8; white-space:nowrap; }\n  .invista-table thead th{ color:#0E2A38; font-weight:700; }\n  .invista-table tbody th{ text-align:left; font-weight:700; color:#0E2A38; }\n  .invista-table td.sep, .invista-table th.sep{ border-left:1px solid #EFE9D8; font-weight:600; }";
   document.head.appendChild(st);
 
   function withHighcharts(cb) {
@@ -65,7 +61,7 @@
     });
 
     return Highcharts.chart(el, {
-      chart: { backgroundColor: "transparent", style: { fontFamily: "inherit" },
+      chart: { backgroundColor: "transparent", style: { fontFamily: '"Inter", system-ui, sans-serif' },
         spacingLeft: endpoints ? 24 : 2, spacingRight: endpoints ? 24 : 6 },
       credits: { enabled: false },
       title: { text: cfg.title || "", align: "left", margin: 6,

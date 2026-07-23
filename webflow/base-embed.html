@@ -1,11 +1,10 @@
 <!-- ============================================================
   inVista Charts — MOTOR (colar UMA vez por página do Webflow)
-  Num HTML Embed no final da página (ou antes do </body> via
-  Page Settings > Custom Code > Footer Code).
-  Os gráficos/tabelas são divs à parte — ver webflow/snippets.md
+  Alternativa sem HTML: use apenas os snippets autossuficientes
+  de webflow/snippets.md (que carregam embed.js sozinhos).
 ============================================================= -->
 <style>
-  .invista-card{
+  .invista-card{ font-family:"Inter",system-ui,sans-serif;
     background:#FBF9F0;
     border:1px solid #EFE9D8;
     border-radius:18px;
@@ -79,7 +78,7 @@
     });
 
     return Highcharts.chart(el, {
-      chart: { backgroundColor: "transparent", style: { fontFamily: "inherit" },
+      chart: { backgroundColor: "transparent", style: { fontFamily: '"Inter", system-ui, sans-serif' },
         spacingLeft: endpoints ? 24 : 2, spacingRight: endpoints ? 24 : 6 },
       credits: { enabled: false },
       title: { text: cfg.title || "", align: "left", margin: 6,
