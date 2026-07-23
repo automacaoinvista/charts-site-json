@@ -87,7 +87,7 @@
         spacingLeft: endpoints ? 24 : 2, spacingRight: endpoints ? 24 : 6 },
       credits: { enabled: false },
       title: { text: cfg.title || "", align: "left", margin: 6,
-        style: { color: "#0E2A38", fontSize: "26px", fontWeight: "800" } },
+        style: { color: "#0E2A38", fontSize: "20px", fontWeight: "600", lineHeight: "120%" } },
       subtitle: { text: cfg.subtitle || "", align: "left", style: { color: "#6B7280", fontSize: "13px" } },
       xAxis: {
         categories: labels, tickLength: 0, lineColor: "#E7E1D0",
@@ -100,7 +100,7 @@
       yAxis: { visible: !hideY, title: { text: null }, gridLineColor: "#F0EBDC",
         labels: { style: { color: "#6B7280", fontSize: "12px" }, formatter: function () { return fmt(this.value); } } },
       legend: { align: "left", verticalAlign: "bottom", x: -4, symbolRadius: 6, squareSymbol: false,
-        itemStyle: { color: "#1F2937", fontWeight: "400", fontSize: "13px" } },
+        itemStyle: { color: "#1F2937", fontWeight: "400", fontSize: "12px" } },
       tooltip: { shared: true, useHTML: true, backgroundColor: "rgba(14,42,56,0.94)", borderWidth: 0, borderRadius: 8,
         style: { color: "#fff" },
         formatter: function () {
@@ -115,13 +115,13 @@
       series: series,
       responsive: { rules: [
         { condition: { maxWidth: 560 }, chartOptions: {
-            title: { style: { fontSize: "20px" } }, subtitle: { style: { fontSize: "11px" } },
+            title: { style: { fontSize: "17px" } }, subtitle: { style: { fontSize: "11px" } },
             legend: { layout: "horizontal", useHTML: true,
               itemStyle: { fontSize: "11px", fontWeight: "400", width: "300px", whiteSpace: "normal", lineHeight: "15px" } },
             xAxis: { labels: { style: { fontSize: endpoints ? "12px" : "9px" } } },
             yAxis: { labels: { style: { fontSize: "9px" } } } } },
         { condition: { minWidth: 561, maxWidth: 860 }, chartOptions: {
-            title: { style: { fontSize: "23px" } }, legend: { layout: "horizontal" },
+            title: { style: { fontSize: "20px" } }, legend: { layout: "horizontal" },
             xAxis: { labels: { style: { fontSize: endpoints ? "13px" : "10px" } } } } }
       ] }
     });
