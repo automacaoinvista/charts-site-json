@@ -53,6 +53,33 @@ jobs:
             git push
           fi
 
+  deploy-hostinger:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Checar credenciais FTP
+        id: creds
+        run: |
+          if [ -n "${{ secrets.FTP_SERVER }}" ]; then
+            echo "ok=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "ok=false" >> "$GITHUB_OUTPUT"
+            echo "Secrets FTP_* ausentes — deploy Hostinger pulado."
+          fi
+      - name: Enviar docs/ para a Hostinger (FTPS)
+        if: steps.creds.outputs.ok == 'true'
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          protocol: ftps
+          local-dir: docs/
+          server-dir: ./
+
   deploy-pages:
     needs: build
     runs-on: ubuntu-latest

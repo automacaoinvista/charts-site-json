@@ -1,0 +1,9 @@
+# charts.automacaoinvista.me — servido pela Hostinger
+# CORS: o site (Webflow) busca os JSONs de outro domínio
+<IfModule mod_headers.c>
+  <FilesMatch "\.json$">
+    Header set Access-Control-Allow-Origin "*"
+    Header set Cache-Control "public, max-age=300"
+  </FilesMatch>
+</IfModule>
+AddDefaultCharset utf-8

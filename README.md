@@ -48,17 +48,18 @@ Abra `docs/index.html` pra ver os gráficos.
 3. Em **Settings → Pages**, em *Build and deployment*, selecione **GitHub Actions**.
 4. Em **Actions**, rode o workflow *"Atualizar JSON dos gráficos"* (botão *Run workflow*).
 
-As URLs públicas (repositório já configurado) são:
+As URLs públicas (servidas pela **Hostinger** em `charts.automacaoinvista.me`) são:
 
 ```
-https://automacaoinvista.github.io/charts-site-json/credito.json
-https://automacaoinvista.github.io/charts-site-json/index.json   (lista dos fundos)
-https://automacaoinvista.github.io/charts-site-json/             (página de preview)
+https://charts.automacaoinvista.me/credito.json
+https://charts.automacaoinvista.me/index.json   (lista dos fundos)
+https://charts.automacaoinvista.me/             (página de preview)
 ```
 
-> **Domínio próprio (opcional):** para `https://charts.invista.me/...`, em
-> *Settings → Pages → Custom domain* coloque `charts.invista.me` e crie um CNAME
-> no DNS apontando para `SEU-USUARIO.github.io`.
+O workflow envia `docs/` via FTPS para a Hostinger após cada build (job
+`deploy-hostinger`; exige os secrets `FTP_SERVER`, `FTP_USERNAME` e
+`FTP_PASSWORD`). O GitHub Pages continua ativo como espelho/fallback em
+`https://automacaoinvista.github.io/charts-site-json/`.
 
 ## 4. Usar no Webflow
 
