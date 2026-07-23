@@ -1,12 +1,10 @@
-# Snippets para o Webflow — um por fundo
+# Snippets para o Webflow — copiar e colar, nada mais
 
-**Passo 1 (uma vez por página):** cole o conteúdo de [`base-embed.html`](base-embed.html)
-num HTML Embed no final da página (ou em *Page Settings → Custom Code → Footer Code*).
+Cada bloco abaixo é **autossuficiente**: cole num **HTML Embed** do Webflow e pronto.
+Não precisa de Footer Code, configuração de página nem nada — pode repetir vários
+na mesma página (o motor carrega uma vez só).
 
-**Passo 2:** onde quiser cada gráfico/tabela, adicione um HTML Embed com o div correspondente abaixo.
-Gráfico e tabela são independentes — use um, outro ou os dois, em qualquer ordem/layout.
-
-> Os dados atualizam sozinhos (a VPS regenera os JSONs de hora em hora a partir do Excel).
+> Dados atualizam sozinhos (a VPS regenera os JSONs de hora em hora a partir do Excel).
 
 ---
 
@@ -17,6 +15,7 @@ Gráfico e tabela são independentes — use um, outro ou os dois, em qualquer o
 <div class="invista-card">
   <div class="invista-chart" data-src="https://charts.automacaoinvista.me/credito.json"></div>
 </div>
+<script src="https://charts.automacaoinvista.me/embed.js" defer></script>
 ```
 
 **Tabela (Performance Histórica):**
@@ -24,6 +23,7 @@ Gráfico e tabela são independentes — use um, outro ou os dois, em qualquer o
 <div class="invista-card">
   <div class="invista-table" data-src="https://charts.automacaoinvista.me/credito.json"></div>
 </div>
+<script src="https://charts.automacaoinvista.me/embed.js" defer></script>
 ```
 
 ---
@@ -35,6 +35,7 @@ Gráfico e tabela são independentes — use um, outro ou os dois, em qualquer o
 <div class="invista-card">
   <div class="invista-chart" data-src="https://charts.automacaoinvista.me/us-credit-feeder.json"></div>
 </div>
+<script src="https://charts.automacaoinvista.me/embed.js" defer></script>
 ```
 
 **Tabela (Performance Histórica):**
@@ -42,6 +43,7 @@ Gráfico e tabela são independentes — use um, outro ou os dois, em qualquer o
 <div class="invista-card">
   <div class="invista-table" data-src="https://charts.automacaoinvista.me/us-credit-feeder.json"></div>
 </div>
+<script src="https://charts.automacaoinvista.me/embed.js" defer></script>
 ```
 
 ---
@@ -53,6 +55,7 @@ Gráfico e tabela são independentes — use um, outro ou os dois, em qualquer o
 <div class="invista-card">
   <div class="invista-chart" data-src="https://charts.automacaoinvista.me/ibbp11-ordinaria.json"></div>
 </div>
+<script src="https://charts.automacaoinvista.me/embed.js" defer></script>
 ```
 
 **Tabela (Performance Histórica):**
@@ -60,6 +63,7 @@ Gráfico e tabela são independentes — use um, outro ou os dois, em qualquer o
 <div class="invista-card">
   <div class="invista-table" data-src="https://charts.automacaoinvista.me/ibbp11-ordinaria.json"></div>
 </div>
+<script src="https://charts.automacaoinvista.me/embed.js" defer></script>
 ```
 
 ---
@@ -71,6 +75,7 @@ Gráfico e tabela são independentes — use um, outro ou os dois, em qualquer o
 <div class="invista-card">
   <div class="invista-chart" data-src="https://charts.automacaoinvista.me/ibbp11-senior.json"></div>
 </div>
+<script src="https://charts.automacaoinvista.me/embed.js" defer></script>
 ```
 
 **Tabela (Performance Histórica):**
@@ -78,6 +83,7 @@ Gráfico e tabela são independentes — use um, outro ou os dois, em qualquer o
 <div class="invista-card">
   <div class="invista-table" data-src="https://charts.automacaoinvista.me/ibbp11-senior.json"></div>
 </div>
+<script src="https://charts.automacaoinvista.me/embed.js" defer></script>
 ```
 
 ---
@@ -89,6 +95,7 @@ Gráfico e tabela são independentes — use um, outro ou os dois, em qualquer o
 <div class="invista-card">
   <div class="invista-chart" data-src="https://charts.automacaoinvista.me/nnn-class-a.json"></div>
 </div>
+<script src="https://charts.automacaoinvista.me/embed.js" defer></script>
 ```
 
 **Tabela (Performance Histórica):**
@@ -96,6 +103,7 @@ Gráfico e tabela são independentes — use um, outro ou os dois, em qualquer o
 <div class="invista-card">
   <div class="invista-table" data-src="https://charts.automacaoinvista.me/nnn-class-a.json"></div>
 </div>
+<script src="https://charts.automacaoinvista.me/embed.js" defer></script>
 ```
 
 ---
@@ -107,6 +115,7 @@ Gráfico e tabela são independentes — use um, outro ou os dois, em qualquer o
 <div class="invista-card">
   <div class="invista-chart" data-src="https://charts.automacaoinvista.me/nnn-class-b.json"></div>
 </div>
+<script src="https://charts.automacaoinvista.me/embed.js" defer></script>
 ```
 
 **Tabela (Performance Histórica):**
@@ -114,6 +123,7 @@ Gráfico e tabela são independentes — use um, outro ou os dois, em qualquer o
 <div class="invista-card">
   <div class="invista-table" data-src="https://charts.automacaoinvista.me/nnn-class-b.json"></div>
 </div>
+<script src="https://charts.automacaoinvista.me/embed.js" defer></script>
 ```
 
 ---
@@ -125,6 +135,7 @@ Gráfico e tabela são independentes — use um, outro ou os dois, em qualquer o
 <div class="invista-card">
   <div class="invista-chart" data-src="https://charts.automacaoinvista.me/rtc-amazon.json"></div>
 </div>
+<script src="https://charts.automacaoinvista.me/embed.js" defer></script>
 ```
 
 **Tabela (Performance Histórica):**
@@ -132,6 +143,7 @@ Gráfico e tabela são independentes — use um, outro ou os dois, em qualquer o
 <div class="invista-card">
   <div class="invista-table" data-src="https://charts.automacaoinvista.me/rtc-amazon.json"></div>
 </div>
+<script src="https://charts.automacaoinvista.me/embed.js" defer></script>
 ```
 
 ---
@@ -143,6 +155,7 @@ Gráfico e tabela são independentes — use um, outro ou os dois, em qualquer o
 <div class="invista-card">
   <div class="invista-chart" data-src="https://charts.automacaoinvista.me/fip-rtc.json"></div>
 </div>
+<script src="https://charts.automacaoinvista.me/embed.js" defer></script>
 ```
 
 **Tabela (Performance Histórica):**
@@ -150,4 +163,5 @@ Gráfico e tabela são independentes — use um, outro ou os dois, em qualquer o
 <div class="invista-card">
   <div class="invista-table" data-src="https://charts.automacaoinvista.me/fip-rtc.json"></div>
 </div>
+<script src="https://charts.automacaoinvista.me/embed.js" defer></script>
 ```
