@@ -95,7 +95,7 @@
         labels: { style: { color: "#6B7280", fontSize: "12px" }, formatter: function () { return fmt(this.value); } }
       },
       legend: { align: "left", verticalAlign: "bottom", x: -4, symbolRadius: 6, squareSymbol: false,
-        itemStyle: { color: "#1F2937", fontWeight: "400", fontSize: "12px" } },
+        itemStyle: { color: "#1F2937", fontWeight: "300", fontSize: "12px", lineHeight: "100%" } },
       tooltip: { shared: true, useHTML: true, backgroundColor: "rgba(14,42,56,0.94)", borderWidth: 0, borderRadius: 8,
         style: { color: "#fff" },
         formatter: function () {
@@ -112,7 +112,7 @@
         { condition: { maxWidth: 560 }, chartOptions: {
             title: { style: { fontSize: "17px" } }, subtitle: { style: { fontSize: "11px" } },
             legend: { layout: "horizontal", useHTML: true,
-              itemStyle: { fontSize: "11px", fontWeight: "400", width: "300px", whiteSpace: "normal", lineHeight: "15px" } },
+              itemStyle: { fontSize: "11px", fontWeight: "300", width: "300px", whiteSpace: "normal", lineHeight: "15px" } },
             xAxis: { labels: { style: { fontSize: endpoints ? "12px" : "9px" } } },
             yAxis: { labels: { style: { fontSize: "9px" } } }
         } },
