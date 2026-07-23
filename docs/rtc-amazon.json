@@ -1,0 +1,78 @@
+{
+  "title": "Retorno Histórico",
+  "subtitle": "",
+  "mode": "cumulative_pct",
+  "type": "line",
+  "xEndpoints": [
+    "Início",
+    "Atual"
+  ],
+  "hideYAxis": true,
+  "labels": [
+    "nov/24",
+    "dez/24",
+    "mar/25",
+    "jun/25",
+    "set/25",
+    "dez/25",
+    "mar/26"
+  ],
+  "series": [
+    {
+      "name": "Fundo",
+      "color": "#138A3C",
+      "data": [
+        0.0,
+        0.0,
+        -0.36,
+        1.48,
+        3.5,
+        5.27,
+        7.05
+      ],
+      "monthly": [
+        null,
+        0.0,
+        -0.36,
+        1.85,
+        1.99,
+        1.71,
+        1.69
+      ],
+      "yearly": {
+        "2024": 0.0,
+        "2025": 5.27,
+        "2026": 1.69
+      }
+    },
+    {
+      "name": "Benchmark: 6% a.a. em Dólar",
+      "color": "#ECE600",
+      "data": [
+        0.0,
+        1.47,
+        2.96,
+        4.47,
+        6.0,
+        7.56,
+        9.13
+      ],
+      "benchmark": true,
+      "monthly": [
+        null,
+        1.47,
+        1.47,
+        1.47,
+        1.47,
+        1.47,
+        1.47
+      ],
+      "yearly": {
+        "2024": 1.47,
+        "2025": 6.0,
+        "2026": 1.47
+      }
+    }
+  ],
+  "updatedAt": ""
+}

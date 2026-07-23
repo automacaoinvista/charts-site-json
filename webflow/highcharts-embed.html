@@ -3,6 +3,11 @@
        data-src="https://automacaoinvista.github.io/charts-site-json/credito.json"></div>
 </div>
 
+<div class="invista-card">
+  <div class="invista-table"
+       data-src="https://automacaoinvista.github.io/charts-site-json/credito.json"></div>
+</div>
+
 <style>
   .invista-card{
     background:#FBF9F0;
@@ -12,6 +17,23 @@
     box-sizing:border-box;
   }
   .invista-chart{ width:100%; height:clamp(300px,46vw,440px); }
+  .invista-bench-toggle{ display:flex; gap:6px; justify-content:flex-end; margin:0 0 4px; flex-wrap:wrap; }
+  .invista-bench-toggle button{ border:1px solid #E7E1D0; background:#fff; color:#1F2937;
+    font-family:inherit; font-size:13px; font-weight:500; line-height:1; padding:8px 14px;
+    border-radius:999px; cursor:pointer; }
+  .invista-bench-toggle button.active{ background:#0E2A38; color:#fff; border-color:#0E2A38; }
+  .invista-table-head{ display:flex; justify-content:flex-start; align-items:center;
+    gap:16px; flex-wrap:wrap; margin:0 0 12px; }
+  .invista-table-head h3{ margin:0; color:#0E2A38; font-size:22px; font-weight:800;
+    font-family:"PP Watch","PPWatch",Georgia,serif; }
+  .invista-table-scroll{ overflow-x:auto; }
+  .invista-table table{ width:100%; border-collapse:collapse; font-size:11.5px;
+    color:#1F2937; }
+  .invista-table th, .invista-table td{ padding:8px 4px; text-align:right;
+    border-bottom:1px solid #EFE9D8; white-space:nowrap; }
+  .invista-table thead th{ color:#0E2A38; font-weight:700; }
+  .invista-table tbody th{ text-align:left; font-weight:700; color:#0E2A38; }
+  .invista-table td.sep, .invista-table th.sep{ border-left:1px solid #EFE9D8; font-weight:600; }
 </style>
 
 <!--
@@ -40,11 +62,18 @@
     var endpoints = cfg.xEndpoints;            // ex: ["Início","Atual"] ou null
     var hideY = !!cfg.hideYAxis;
 
+    // com 2+ benchmarks, só o primeiro começa visível (os botões alternam)
+    var benchIdx = [];
+    (cfg.series || []).forEach(function (s, i) { if (s.benchmark) benchIdx.push(i); });
+    var hasToggle = benchIdx.length >= 2;
+
     var series = (cfg.series || []).map(function (s, i) {
       var color = s.color || PALETTE[i % PALETTE.length];
       var area = cfg.area && !isBar && i === 0;
+      var hidden = hasToggle && s.benchmark && i !== benchIdx[0];
       return {
         name: s.name, color: color,
+        visible: !hidden, showInLegend: !hidden,
         type: isBar ? "column" : (area ? "areaspline" : "spline"),
         data: s.data,
         marker: { enabled: false, symbol: "circle", radius: 4, states: { hover: { enabled: true, radius: 5 } } },
@@ -98,7 +127,87 @@
     });
   }
 
+  function addBenchToggle(el, chart, cfg) {
+    var idxs = [];
+    (cfg.series || []).forEach(function (s, i) { if (s.benchmark) idxs.push(i); });
+    if (idxs.length < 2) return;
+    var bar = document.createElement("div");
+    bar.className = "invista-bench-toggle";
+    idxs.forEach(function (si, k) {
+      var b = document.createElement("button");
+      b.type = "button";
+      b.textContent = cfg.series[si].name;
+      if (k === 0) b.className = "active";
+      b.onclick = function () {
+        idxs.forEach(function (sj) {
+          chart.series[sj].update({ visible: sj === si, showInLegend: sj === si }, false);
+        });
+        chart.redraw();
+        Array.prototype.forEach.call(bar.children, function (c) {
+          c.className = (c === b) ? "active" : "";
+        });
+      };
+      bar.appendChild(b);
+    });
+    el.parentNode.insertBefore(bar, el);
+  }
+
+  var MESES = ["jan","fev","mar","abr","mai","jun","jul","ago","set","out","nov","dez"];
+  var MES_HDR = ["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"];
+  function fmtCell(v){ return (v === null || v === undefined) ? "-" : fmtPct(v); }
+
+  function renderTable(el, cfg) {
+    var fund = (cfg.series || [])[0];
+    var benches = (cfg.series || []).filter(function (s) { return s.benchmark; });
+    if (!fund || !fund.monthly) { el.textContent = "Sem dados."; return; }
+    var byLabel = {};
+    (cfg.labels || []).forEach(function (lab, i) { if (i > 0) byLabel[lab] = fund.monthly[i]; });
+    var years = [];
+    (cfg.labels || []).slice(1).forEach(function (lab) {
+      var y = 2000 + parseInt(lab.split("/")[1], 10);
+      if (years.indexOf(y) < 0) years.push(y);
+    });
+    years.sort(function (a, b) { return b - a; });
+    var selBench = 0;
+    function build() {
+      var b = benches[selBench];
+      var html = '<div class="invista-table-head"><h3>Performance Histórica</h3>';
+      if (benches.length > 1) {
+        html += '<div class="invista-bench-toggle">' + benches.map(function (x, k) {
+          return '<button type="button" data-k="' + k + '" class="' + (k === selBench ? "active" : "") + '">' + x.name + "</button>";
+        }).join("") + "</div>";
+      }
+      html += '</div><div class="invista-table-scroll"><table><thead><tr><th>Ano</th>' +
+        MES_HDR.map(function (m) { return "<th>" + m + "</th>"; }).join("") +
+        '<th class="sep">Ano</th>' + (b ? "<th>" + b.name.replace(/^Benchmark:\s*/, "") + "</th>" : "") + "</tr></thead><tbody>";
+      years.forEach(function (y) {
+        html += "<tr><th>" + y + "</th>";
+        for (var m = 0; m < 12; m++) {
+          var lab = MESES[m] + "/" + ("0" + (y % 100)).slice(-2);
+          html += "<td>" + fmtCell(byLabel.hasOwnProperty(lab) ? byLabel[lab] : null) + "</td>";
+        }
+        html += '<td class="sep">' + fmtCell(fund.yearly ? fund.yearly[y] : null) + "</td>";
+        if (b) html += "<td>" + fmtCell(b.yearly ? b.yearly[y] : null) + "</td>";
+        html += "</tr>";
+      });
+      html += "</tbody></table></div>";
+      el.innerHTML = html;
+      el.querySelectorAll(".invista-bench-toggle button").forEach(function (btn) {
+        btn.onclick = function () { selBench = +btn.getAttribute("data-k"); build(); };
+      });
+    }
+    build();
+  }
+
   function boot() {
+    document.querySelectorAll(".invista-table[data-src]").forEach(function (el) {
+      if (el.__invistaDone) return;
+      el.__invistaDone = true;
+      fetch(el.getAttribute("data-src"), { cache: "no-store" })
+        .then(function (r) { return r.json(); })
+        .then(function (cfg) { renderTable(el, cfg); })
+        .catch(function (e) { el.textContent = "Não foi possível carregar a tabela."; console.error("[invista-table]", e); });
+    });
     document.querySelectorAll(".invista-chart[data-src]").forEach(function (el) {
       if (el.__invistaDone) return;
       el.__invistaDone = true;
@@ -106,6 +215,7 @@
         .then(function (r) { return r.json(); })
         .then(function (cfg) {
           var chart = render(el, cfg);
+          addBenchToggle(el, chart, cfg);
           var raf;
           function doResize(){ cancelAnimationFrame(raf); raf = requestAnimationFrame(function(){ chart.reflow(); }); }
           new ResizeObserver(doResize).observe(el);

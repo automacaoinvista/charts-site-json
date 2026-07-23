@@ -2,20 +2,264 @@
   "funds": [
     {
       "output": "credito",
-      "title": "Rentabilidades Mensais (Dólar)",
-      "subtitle": "*Líquido de todas as taxas",
-      "share_url": "https://invistame.sharepoint.com/:x:/s/dir-gestaodeportfolio/IQC2TvQxWPROQrN6RpzADX7zAVW9m9kgAkHZnzFxcxHbQLg?e=ZOuEwc",
-      "drive_id": "b!3QL0CqlJ90SG68LvhbvaXs5AsRc5nPxHnXRCfGFMbNLmfRBaKRKFRrFKuhYauHRZ",
-      "item_id": "016WVL7FVWJ32DCWHUJZBLG6SGTTAA27XT",
-      "table": "Rentabilidade_Consolidada",
-      "date_column": "Data",
-      "mode": "cumulative_100",
+      "title": "Retorno Histórico",
+      "subtitle": "",
+      "share_url": "https://invistame.sharepoint.com/sites/dir-corporativo/Shared%20Documents/Base%20Relat%C3%B3rios/Rentabilidades%20Site%20inVista.xlsx",
+      "drive_id": "b!l7B3W7RV3EGywLtxZR7QZ85AsRc5nPxHnXRCfGFMbNLmfRBaKRKFRrFKuhYauHRZ",
+      "item_id": "01V4IWKRRVV7WXPWG6FVBZ5FPOTEJNSOOD",
+      "worksheet": "Rentabilidades Mensais",
+      "mode": "cumulative_pct",
       "chart_type": "line",
-      "x_endpoints": ["Início", "Atual"],
+      "x_endpoints": [
+        "Início",
+        "Atual"
+      ],
       "hide_y_axis": true,
       "series": [
-        { "column": "Rent. US Credit", "name": "Retorno da Estratégia", "color": "#138A3C" },
-        { "column": "Rent. USHY", "name": "Retorno USHY - iShares Broad USD High Yield Corp Bd ETF", "color": "#ECE600" }
+        {
+          "column": "Acum US Credit Master",
+          "name": "Fundo",
+          "color": "#138A3C",
+          "accumulated": true
+        },
+        {
+          "column": "Bench US Credit Master",
+          "name": "Benchmark: 6% a.a. em Dólar",
+          "color": "#ECE600",
+          "accumulated": true,
+          "benchmark": true
+        }
+      ]
+    },
+    {
+      "output": "us-credit-feeder",
+      "title": "Retorno Histórico",
+      "subtitle": "",
+      "share_url": "https://invistame.sharepoint.com/sites/dir-corporativo/Shared%20Documents/Base%20Relat%C3%B3rios/Rentabilidades%20Site%20inVista.xlsx",
+      "drive_id": "b!l7B3W7RV3EGywLtxZR7QZ85AsRc5nPxHnXRCfGFMbNLmfRBaKRKFRrFKuhYauHRZ",
+      "item_id": "01V4IWKRRVV7WXPWG6FVBZ5FPOTEJNSOOD",
+      "worksheet": "Rentabilidades Mensais",
+      "mode": "cumulative_pct",
+      "chart_type": "line",
+      "x_endpoints": [
+        "Início",
+        "Atual"
+      ],
+      "hide_y_axis": true,
+      "series": [
+        {
+          "column": "Acum US Credit Feeder",
+          "name": "Fundo",
+          "color": "#138A3C",
+          "accumulated": true
+        },
+        {
+          "column": "Bench US Credit Feeder",
+          "name": "Benchmark: IPCA + 6% a.a.",
+          "color": "#ECE600",
+          "accumulated": true,
+          "benchmark": true
+        }
+      ]
+    },
+    {
+      "output": "ibbp11-ordinaria",
+      "title": "Retorno Histórico",
+      "subtitle": "",
+      "share_url": "https://invistame.sharepoint.com/sites/dir-corporativo/Shared%20Documents/Base%20Relat%C3%B3rios/Rentabilidades%20Site%20inVista.xlsx",
+      "drive_id": "b!l7B3W7RV3EGywLtxZR7QZ85AsRc5nPxHnXRCfGFMbNLmfRBaKRKFRrFKuhYauHRZ",
+      "item_id": "01V4IWKRRVV7WXPWG6FVBZ5FPOTEJNSOOD",
+      "worksheet": "Rentabilidades Mensais",
+      "mode": "cumulative_pct",
+      "chart_type": "line",
+      "x_endpoints": [
+        "Início",
+        "Atual"
+      ],
+      "hide_y_axis": true,
+      "series": [
+        {
+          "column": "Acum IBBP11 Ordinária",
+          "name": "Fundo",
+          "color": "#138A3C",
+          "accumulated": true
+        },
+        {
+          "column": "Bench CDI IBBP11 Ordinária",
+          "name": "CDI",
+          "color": "#ECE600",
+          "accumulated": true,
+          "benchmark": true
+        },
+        {
+          "column": "Bench IPCA+6 IBBP11 Ordinária",
+          "name": "IPCA + 6% a.a.",
+          "color": "#ECE600",
+          "accumulated": true,
+          "benchmark": true
+        }
+      ]
+    },
+    {
+      "output": "ibbp11-senior",
+      "title": "Retorno Histórico",
+      "subtitle": "",
+      "share_url": "https://invistame.sharepoint.com/sites/dir-corporativo/Shared%20Documents/Base%20Relat%C3%B3rios/Rentabilidades%20Site%20inVista.xlsx",
+      "drive_id": "b!l7B3W7RV3EGywLtxZR7QZ85AsRc5nPxHnXRCfGFMbNLmfRBaKRKFRrFKuhYauHRZ",
+      "item_id": "01V4IWKRRVV7WXPWG6FVBZ5FPOTEJNSOOD",
+      "worksheet": "Rentabilidades Mensais",
+      "mode": "cumulative_pct",
+      "chart_type": "line",
+      "x_endpoints": [
+        "Início",
+        "Atual"
+      ],
+      "hide_y_axis": true,
+      "series": [
+        {
+          "column": "Acum IBBP11 Sênior",
+          "name": "Fundo",
+          "color": "#138A3C",
+          "accumulated": true
+        },
+        {
+          "column": "Bench CDI IBBP11 Sênior",
+          "name": "CDI",
+          "color": "#ECE600",
+          "accumulated": true,
+          "benchmark": true
+        },
+        {
+          "column": "Bench IPCA+6 IBBP11 Sênior",
+          "name": "IPCA + 6% a.a.",
+          "color": "#ECE600",
+          "accumulated": true,
+          "benchmark": true
+        }
+      ]
+    },
+    {
+      "output": "nnn-class-a",
+      "title": "Retorno Histórico",
+      "subtitle": "",
+      "share_url": "https://invistame.sharepoint.com/sites/dir-corporativo/Shared%20Documents/Base%20Relat%C3%B3rios/Rentabilidades%20Site%20inVista.xlsx",
+      "drive_id": "b!l7B3W7RV3EGywLtxZR7QZ85AsRc5nPxHnXRCfGFMbNLmfRBaKRKFRrFKuhYauHRZ",
+      "item_id": "01V4IWKRRVV7WXPWG6FVBZ5FPOTEJNSOOD",
+      "worksheet": "Rentabilidades Mensais",
+      "mode": "cumulative_pct",
+      "chart_type": "line",
+      "x_endpoints": [
+        "Início",
+        "Atual"
+      ],
+      "hide_y_axis": true,
+      "series": [
+        {
+          "column": "Acum NNN Class A",
+          "name": "Fundo",
+          "color": "#138A3C",
+          "accumulated": true
+        },
+        {
+          "column": "Bench NNN Class A",
+          "name": "Benchmark: 6% a.a. em Dólar",
+          "color": "#ECE600",
+          "accumulated": true,
+          "benchmark": true
+        }
+      ]
+    },
+    {
+      "output": "nnn-class-b",
+      "title": "Retorno Histórico",
+      "subtitle": "",
+      "share_url": "https://invistame.sharepoint.com/sites/dir-corporativo/Shared%20Documents/Base%20Relat%C3%B3rios/Rentabilidades%20Site%20inVista.xlsx",
+      "drive_id": "b!l7B3W7RV3EGywLtxZR7QZ85AsRc5nPxHnXRCfGFMbNLmfRBaKRKFRrFKuhYauHRZ",
+      "item_id": "01V4IWKRRVV7WXPWG6FVBZ5FPOTEJNSOOD",
+      "worksheet": "Rentabilidades Mensais",
+      "mode": "cumulative_pct",
+      "chart_type": "line",
+      "x_endpoints": [
+        "Início",
+        "Atual"
+      ],
+      "hide_y_axis": true,
+      "series": [
+        {
+          "column": "Acum NNN Class B",
+          "name": "Fundo",
+          "color": "#138A3C",
+          "accumulated": true
+        },
+        {
+          "column": "Bench NNN Class B",
+          "name": "Benchmark: 6% a.a. em Dólar",
+          "color": "#ECE600",
+          "accumulated": true,
+          "benchmark": true
+        }
+      ]
+    },
+    {
+      "output": "rtc-amazon",
+      "title": "Retorno Histórico",
+      "subtitle": "",
+      "share_url": "https://invistame.sharepoint.com/sites/dir-corporativo/Shared%20Documents/Base%20Relat%C3%B3rios/Rentabilidades%20Site%20inVista.xlsx",
+      "drive_id": "b!l7B3W7RV3EGywLtxZR7QZ85AsRc5nPxHnXRCfGFMbNLmfRBaKRKFRrFKuhYauHRZ",
+      "item_id": "01V4IWKRRVV7WXPWG6FVBZ5FPOTEJNSOOD",
+      "worksheet": "Rentabilidades Mensais",
+      "mode": "cumulative_pct",
+      "chart_type": "line",
+      "x_endpoints": [
+        "Início",
+        "Atual"
+      ],
+      "hide_y_axis": true,
+      "series": [
+        {
+          "column": "Acum RTC Amazon",
+          "name": "Fundo",
+          "color": "#138A3C",
+          "accumulated": true
+        },
+        {
+          "column": "Bench RTC Amazon",
+          "name": "Benchmark: 6% a.a. em Dólar",
+          "color": "#ECE600",
+          "accumulated": true,
+          "benchmark": true
+        }
+      ]
+    },
+    {
+      "output": "fip-rtc",
+      "title": "Retorno Histórico",
+      "subtitle": "",
+      "share_url": "https://invistame.sharepoint.com/sites/dir-corporativo/Shared%20Documents/Base%20Relat%C3%B3rios/Rentabilidades%20Site%20inVista.xlsx",
+      "drive_id": "b!l7B3W7RV3EGywLtxZR7QZ85AsRc5nPxHnXRCfGFMbNLmfRBaKRKFRrFKuhYauHRZ",
+      "item_id": "01V4IWKRRVV7WXPWG6FVBZ5FPOTEJNSOOD",
+      "worksheet": "Rentabilidades Mensais",
+      "mode": "cumulative_pct",
+      "chart_type": "line",
+      "x_endpoints": [
+        "Início",
+        "Atual"
+      ],
+      "hide_y_axis": true,
+      "series": [
+        {
+          "column": "Acum FIP RTC",
+          "name": "Fundo",
+          "color": "#138A3C",
+          "accumulated": true
+        },
+        {
+          "column": "Bench FIP RTC",
+          "name": "Benchmark: IPCA + 6% a.a.",
+          "color": "#ECE600",
+          "accumulated": true,
+          "benchmark": true
+        }
       ]
     }
   ]

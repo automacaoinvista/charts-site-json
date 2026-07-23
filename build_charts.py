@@ -13,6 +13,7 @@ import datetime as dt
 import json
 import os
 import sys
+import urllib.parse
 from pathlib import Path
 
 import requests
@@ -77,6 +78,20 @@ def read_table(headers, drive_id, item_id, table):
     return names, values[1:]  # values[0] é o cabeçalho
 
 
+def read_worksheet(headers, drive_id, item_id, worksheet):
+    """Lê o usedRange de uma aba; a primeira linha é o cabeçalho."""
+    ws = urllib.parse.quote(worksheet)
+    url = (f"{GRAPH}/drives/{drive_id}/items/{item_id}/workbook"
+           f"/worksheets/{ws}/usedRange?$select=values")
+    r = requests.get(url, headers=headers, timeout=60)
+    r.raise_for_status()
+    values = r.json().get("values", [])
+    if not values:
+        return [], []
+    names = [str(c).strip() for c in values[0]]
+    return names, values[1:]
+
+
 # ---------- transformação ----------
 def excel_serial_to_label(v):
     """Converte serial do Excel (ou string) em label pt-BR 'mmm/aa'."""
@@ -91,11 +106,17 @@ def to_number(v):
         return None
     if isinstance(v, (int, float)):
         return float(v)
-    s = str(v).strip().replace("%", "").replace(".", "").replace(",", ".")
+    s = str(v).strip()
+    if s in ("-", "N/A", "#N/A", "#VALUE!"):
+        return None
+    is_pct = s.endswith("%")
+    s = s.replace("%", "").replace(".", "").replace(",", ".")
     try:
-        return float(s)
+        n = float(s)
     except ValueError:
         return None
+    # "0,67%" é percentual: converte pra decimal como as demais células (0.0067)
+    return n / 100.0 if is_pct else n
 
 
 def apply_mode(monthly_returns, mode):
@@ -115,29 +136,103 @@ def apply_mode(monthly_returns, mode):
 
 def build_fund(headers, fund):
     drive_id, item_id = resolve_item(headers, fund)
-    names, rows = read_table(headers, drive_id, item_id, fund["table"])
+    if fund.get("worksheet"):
+        names, rows = read_worksheet(headers, drive_id, item_id, fund["worksheet"])
+    else:
+        names, rows = read_table(headers, drive_id, item_id, fund["table"])
     idx = {n: i for i, n in enumerate(names)}
 
-    date_i = idx[fund["date_column"]]
+    # sem date_column no config, usa a primeira coluna
+    date_i = idx[fund["date_column"]] if fund.get("date_column") else 0
     series_cfg = fund["series"]
     series_i = [idx[s["column"]] for s in series_cfg]
 
+    # A 1ª série é o fundo: só entram no gráfico os meses em que ele tem cota.
+    # Séries com "accumulated": true (benchmarks) já vêm acumuladas da planilha
+    # e são plotadas direto. As demais são retornos mensais compostos pelo
+    # apply_mode; em meses pulados (fundos trimestrais) o retorno é composto
+    # no ponto seguinte via `pending`.
+    accum = [bool(s.get("accumulated")) for s in series_cfg]
+    if any(accum) and fund["mode"] == "monthly":
+        raise ValueError(f"{fund['output']}: série 'accumulated' não suporta modo 'monthly'")
     labels, raw = [], [[] for _ in series_cfg]
+    started = False
+    first_serial = None
+    pending = [1.0] * len(series_cfg)
     for row in rows:
-        vals = [to_number(row[i]) for i in series_i]
-        if all(v is None for v in vals):   # ignora linhas futuras vazias
+        if row[date_i] in (None, ""):      # linhas em branco no fim da aba
             continue
+        vals = [to_number(row[i]) for i in series_i]
+        if vals[0] is None:                # mês sem cota do fundo
+            if started:
+                for k, v in enumerate(vals):
+                    if v is not None and not accum[k]:
+                        pending[k] *= (1.0 + v)
+            continue
+        # Linha "placeholder" de mês ainda sem fechamento: a cota vem 0 (PROCV de
+        # célula vazia) — o acumulado do fundo fica parado — e o acumulado do
+        # bench regride (reinicia na aba do fundo). Some do gráfico até o time
+        # preencher os dados do mês.
+        if raw[0]:
+            fund_parado = (abs(vals[0] - raw[0][-1]) < 1e-12) if accum[0] else vals[0] == 0.0
+            bench_regrediu = any(
+                accum[k] and vals[k] is not None and vals[k] < raw[k][-1] - 1e-12
+                for k in range(1, len(vals))
+            )
+            if fund_parado and bench_regrediu:
+                continue
+        started = True
+        if first_serial is None:
+            first_serial = row[date_i]
         labels.append(excel_serial_to_label(row[date_i]))
         for k, v in enumerate(vals):
-            raw[k].append(v if v is not None else 0.0)
+            if accum[k]:
+                if v is None:              # sem acumulado no mês: repete o anterior
+                    v = raw[k][-1] if raw[k] else 0.0
+                raw[k].append(v)
+            else:
+                raw[k].append((1.0 + (v if v is not None else 0.0)) * pending[k] - 1.0)
+        pending = [1.0] * len(series_cfg)
+
+    # ponto inicial: todas as séries partem de 0 no mês anterior ao 1º dado
+    if labels:
+        if isinstance(first_serial, (int, float)):
+            d = dt.date(1899, 12, 30) + dt.timedelta(days=int(first_serial))
+            y, m = (d.year, d.month - 1) if d.month > 1 else (d.year - 1, 12)
+            labels.insert(0, f"{MESES_PT[m - 1]}/{y % 100:02d}")
+        else:
+            labels.insert(0, "Início")
+        for data in raw:
+            data.insert(0, 0.0)
 
     series = []
-    for cfg, data in zip(series_cfg, raw):
-        series.append({
-            "name": cfg["name"],
-            "color": cfg["color"],
-            "data": apply_mode(data, fund["mode"]),
-        })
+    for cfg, is_acc, data in zip(series_cfg, accum, raw):
+        if is_acc:
+            if fund["mode"] == "cumulative_pct":
+                plot = [round(v * 100, 2) for v in data]
+            else:  # cumulative_100
+                plot = [round((1.0 + v) * 100, 2) for v in data]
+        else:
+            plot = apply_mode(data, fund["mode"])
+        item = {"name": cfg["name"], "color": cfg["color"], "data": plot}
+        if cfg.get("benchmark"):   # p/ o renderer agrupar benchmarks alternáveis
+            item["benchmark"] = True
+        if is_acc and labels:
+            # p/ a tabela de performance: retorno de cada mês e total por ano,
+            # derivados do acumulado sem arredondamento intermediário
+            monthly = [None]
+            for i in range(1, len(data)):
+                monthly.append(round(((1.0 + data[i]) / (1.0 + data[i - 1]) - 1.0) * 100, 2))
+            item["monthly"] = monthly
+            yearly, prev = {}, 0.0
+            year_last = {}
+            for i in range(1, len(labels)):
+                year_last[2000 + int(labels[i].split("/")[1])] = data[i]
+            for yy in sorted(year_last):
+                yearly[str(yy)] = round(((1.0 + year_last[yy]) / (1.0 + prev) - 1.0) * 100, 2)
+                prev = year_last[yy]
+            item["yearly"] = yearly
+        series.append(item)
 
     # tipo visual: explícito no config, senão barra p/ mensal e linha p/ acumulado
     chart_type = fund.get("chart_type") or ("bar" if fund["mode"] == "monthly" else "line")

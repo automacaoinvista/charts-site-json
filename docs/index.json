@@ -1,6 +1,13 @@
 {
   "funds": [
-    "credito"
+    "credito",
+    "us-credit-feeder",
+    "ibbp11-ordinaria",
+    "ibbp11-senior",
+    "nnn-class-a",
+    "nnn-class-b",
+    "rtc-amazon",
+    "fip-rtc"
   ],
-  "updatedAt": "2026-07-23T12:24:32Z"
+  "updatedAt": ""
 }

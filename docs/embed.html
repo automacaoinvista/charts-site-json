@@ -8,6 +8,13 @@
   html,body{ margin:0; height:100%; background:#FBF9F0;
     font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif; }
   #chart{ width:100%; height:100%; box-sizing:border-box; padding:22px 24px; }
+  .invista-bench-toggle{ display:flex; gap:6px; justify-content:flex-end;
+    padding:12px 24px 0; flex-wrap:wrap; }
+  .invista-bench-toggle button{ border:1px solid #E7E1D0; background:#fff; color:#1F2937;
+    font-family:inherit; font-size:13px; font-weight:500; line-height:1; padding:8px 14px;
+    border-radius:999px; cursor:pointer; }
+  .invista-bench-toggle button.active{ background:#0E2A38; color:#fff; border-color:#0E2A38; }
+  body.has-toggle #chart{ height:calc(100% - 42px); padding-top:6px; }
 </style>
 </head>
 <body>
@@ -40,12 +47,19 @@
     var endpoints = cfg.xEndpoints;           // ex: ["Início","Atual"] ou null
     var hideY = !!cfg.hideYAxis;
 
+    // com 2+ benchmarks, só o primeiro começa visível (os botões alternam)
+    var benchIdx = [];
+    (cfg.series || []).forEach(function (s, i) { if (s.benchmark) benchIdx.push(i); });
+    var hasToggle = benchIdx.length >= 2;
+
     var series = (cfg.series || []).map(function (s, i) {
       var color = s.color || PALETTE[i % PALETTE.length];
       var area = cfg.area && !isBar && i === 0;
+      var hidden = hasToggle && s.benchmark && i !== benchIdx[0];
       return {
         name: s.name,
         color: color,
+        visible: !hidden, showInLegend: !hidden,
         type: isBar ? "column" : (area ? "areaspline" : "spline"),
         data: s.data,
         marker: { enabled: false, symbol: "circle", radius: 4, states: { hover: { enabled: true, radius: 5 } } },
@@ -110,10 +124,38 @@
     });
   }
 
+  function addBenchToggle(el, chart, cfg) {
+    var idxs = [];
+    (cfg.series || []).forEach(function (s, i) { if (s.benchmark) idxs.push(i); });
+    if (idxs.length < 2) return;
+    var bar = document.createElement("div");
+    bar.className = "invista-bench-toggle";
+    idxs.forEach(function (si, k) {
+      var b = document.createElement("button");
+      b.type = "button";
+      b.textContent = cfg.series[si].name;
+      if (k === 0) b.className = "active";
+      b.onclick = function () {
+        idxs.forEach(function (sj) {
+          chart.series[sj].update({ visible: sj === si, showInLegend: sj === si }, false);
+        });
+        chart.redraw();
+        Array.prototype.forEach.call(bar.children, function (c) {
+          c.className = (c === b) ? "active" : "";
+        });
+      };
+      bar.appendChild(b);
+    });
+    document.body.classList.add("has-toggle");
+    el.parentNode.insertBefore(bar, el);
+    chart.reflow();
+  }
+
   fetch(src, { cache: "no-store" })
     .then(function (r) { return r.json(); })
     .then(function (cfg) {
       var chart = render(document.getElementById("chart"), cfg);
+      addBenchToggle(document.getElementById("chart"), chart, cfg);
       var raf;
       function doResize(){ cancelAnimationFrame(raf); raf = requestAnimationFrame(function(){ chart.reflow(); }); }
       new ResizeObserver(doResize).observe(document.getElementById("chart"));
