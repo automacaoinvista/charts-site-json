@@ -1,11 +1,16 @@
 /* inVista Charts — motor auto-contido (https://charts.automacaoinvista.me/embed.js)
-   Uso no Webflow (Site Settings > Custom Code > Footer):
+   Cole no Webflow (HTML Embed) o snippet completo por elemento:
+     <div class="invista-card">
+       <div class="invista-chart" data-src="https://charts.automacaoinvista.me/<fundo>.json"></div>
+     </div>
      <script src="https://charts.automacaoinvista.me/embed.js" defer></script>
-   Depois, qualquer Div Block com classe "invista-chart" ou "invista-table"
-   e atributo data-src="https://charts.automacaoinvista.me/<fundo>.json" renderiza sozinho.
+   Pode repetir em varios embeds na mesma pagina — o motor carrega uma vez so.
    Highcharts: uso comercial exige licenca valida (ver README). */
 (function () {
-  if (window.__invistaEmbedJs) return;
+  if (window.__invistaEmbedJs) {
+    if (window.__invistaBoot) window.__invistaBoot();
+    return;
+  }
   window.__invistaEmbedJs = true;
 
   var st = document.createElement("style");
@@ -207,6 +212,7 @@
     });
   }
 
+  window.__invistaBoot = boot;
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", boot);
   } else { boot(); }
