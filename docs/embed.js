@@ -20,7 +20,7 @@
   function withHighcharts(cb) {
     if (window.Highcharts) return cb();
     var s = document.createElement("script");
-    s.src = "https://code.highcharts.com/11.4.8/highcharts.js";  // versao fixada
+    s.src = "https://charts.automacaoinvista.me/highcharts.js";  // v11.4.8 auto-hospedado
     s.onload = cb;
     document.head.appendChild(s);
   }
