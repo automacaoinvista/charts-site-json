@@ -1,6 +1,6 @@
 {
   "title": "Retorno Histórico",
-  "subtitle": "",
+  "subtitle": "*Total Return (dividendos + ganho de capital)",
   "mode": "cumulative_pct",
   "type": "line",
   "xEndpoints": [
@@ -139,5 +139,5 @@
       }
     }
   ],
-  "updatedAt": "2026-07-24T12:19:53Z"
+  "updatedAt": ""
 }
