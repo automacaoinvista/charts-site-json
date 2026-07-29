@@ -13,6 +13,7 @@ import datetime as dt
 import json
 import os
 import sys
+import time
 import urllib.parse
 from pathlib import Path
 
@@ -54,6 +55,20 @@ def get_token() -> str:
 
 
 # ---------- resolução do arquivo ----------
+def graph_get(headers, url, timeout=60, tries=4):
+    """GET no Graph com retry/backoff para erros transitórios (429/5xx)."""
+    for i in range(tries):
+        r = requests.get(url, headers=headers, timeout=timeout)
+        if r.status_code in (429, 500, 502, 503, 504) and i < tries - 1:
+            wait = int(r.headers.get("Retry-After", 0) or 0) or 2 ** (i + 1)
+            print(f"  Graph {r.status_code}, tentando de novo em {wait}s...")
+            time.sleep(wait)
+            continue
+        r.raise_for_status()
+        return r
+    raise RuntimeError("unreachable")
+
+
 def resolve_item(headers, fund):
     """Retorna (drive_id, item_id) a partir do config (direto ou via share_url)."""
     if fund.get("drive_id") and fund.get("item_id"):
@@ -61,35 +76,40 @@ def resolve_item(headers, fund):
     share_url = fund["share_url"]
     b64 = base64.urlsafe_b64encode(share_url.encode()).decode().rstrip("=")
     share_id = "u!" + b64
-    r = requests.get(f"{GRAPH}/shares/{share_id}/driveItem", headers=headers, timeout=30)
-    r.raise_for_status()
+    r = graph_get(headers, f"{GRAPH}/shares/{share_id}/driveItem", timeout=30)
     item = r.json()
     return item["parentReference"]["driveId"], item["id"]
 
 
 def read_table(headers, drive_id, item_id, table):
     base = f"{GRAPH}/drives/{drive_id}/items/{item_id}/workbook/tables/{table}"
-    cols = requests.get(f"{base}/columns?$select=name,index", headers=headers, timeout=30)
-    cols.raise_for_status()
+    cols = graph_get(headers, f"{base}/columns?$select=name,index", timeout=30)
     names = [c["name"] for c in cols.json()["value"]]
-    rng = requests.get(f"{base}/range?$select=values", headers=headers, timeout=60)
-    rng.raise_for_status()
+    rng = graph_get(headers, f"{base}/range?$select=values", timeout=60)
     values = rng.json().get("values", [])
     return names, values[1:]  # values[0] é o cabeçalho
 
 
+_ws_cache = {}
+
+
 def read_worksheet(headers, drive_id, item_id, worksheet):
-    """Lê o usedRange de uma aba; a primeira linha é o cabeçalho."""
+    """Lê o usedRange de uma aba (1ª linha = cabeçalho). Com cache: os 8 fundos
+    compartilham a mesma aba consolidada — uma chamada ao Graph atende todos."""
+    key = (drive_id, item_id, worksheet)
+    if key in _ws_cache:
+        return _ws_cache[key]
     ws = urllib.parse.quote(worksheet)
     url = (f"{GRAPH}/drives/{drive_id}/items/{item_id}/workbook"
            f"/worksheets/{ws}/usedRange?$select=values")
-    r = requests.get(url, headers=headers, timeout=60)
-    r.raise_for_status()
+    r = graph_get(headers, url, timeout=60)
     values = r.json().get("values", [])
     if not values:
-        return [], []
-    names = [str(c).strip() for c in values[0]]
-    return names, values[1:]
+        result = ([], [])
+    else:
+        result = ([str(c).strip() for c in values[0]], values[1:])
+    _ws_cache[key] = result
+    return result
 
 
 # ---------- transformação ----------
