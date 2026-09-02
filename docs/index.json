@@ -2,8 +2,10 @@
   "funds": [
     "credito",
     "us-credit-feeder",
+    "ibbp11-ordinaria",
     "ibbp11-ordinaria-cdi",
     "ibbp11-ordinaria-ipca",
+    "ibbp11-senior",
     "ibbp11-senior-cdi",
     "ibbp11-senior-ipca",
     "nnn-class-a",
