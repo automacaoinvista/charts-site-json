@@ -63,7 +63,7 @@
       ]
     },
     {
-      "output": "ibbp11-ordinaria",
+      "output": "ibbp11-ordinaria-cdi",
       "title": "Retorno Histórico",
       "subtitle": "*Total Return (dividendos + ganho de capital)",
       "share_url": "https://invistame.sharepoint.com/sites/dir-corporativo/Shared%20Documents/Base%20Relat%C3%B3rios/Rentabilidades%20Site%20inVista.xlsx",
@@ -90,6 +90,30 @@
           "color": "#ECE600",
           "accumulated": true,
           "benchmark": true
+        }
+      ]
+    },
+    {
+      "output": "ibbp11-ordinaria-ipca",
+      "title": "Retorno Histórico",
+      "subtitle": "*Total Return (dividendos + ganho de capital)",
+      "share_url": "https://invistame.sharepoint.com/sites/dir-corporativo/Shared%20Documents/Base%20Relat%C3%B3rios/Rentabilidades%20Site%20inVista.xlsx",
+      "drive_id": "b!l7B3W7RV3EGywLtxZR7QZ85AsRc5nPxHnXRCfGFMbNLmfRBaKRKFRrFKuhYauHRZ",
+      "item_id": "01V4IWKRRVV7WXPWG6FVBZ5FPOTEJNSOOD",
+      "worksheet": "Rentabilidades Mensais",
+      "mode": "cumulative_pct",
+      "chart_type": "line",
+      "x_endpoints": [
+        "Início",
+        "Atual"
+      ],
+      "hide_y_axis": true,
+      "series": [
+        {
+          "column": "Acum IBBP11 Ordinária",
+          "name": "Fundo",
+          "color": "#138A3C",
+          "accumulated": true
         },
         {
           "column": "Bench IPCA+6 IBBP11 Ordinária",
@@ -101,7 +125,7 @@
       ]
     },
     {
-      "output": "ibbp11-senior",
+      "output": "ibbp11-senior-cdi",
       "title": "Retorno Histórico",
       "subtitle": "*Total Return (dividendos + ganho de capital)",
       "share_url": "https://invistame.sharepoint.com/sites/dir-corporativo/Shared%20Documents/Base%20Relat%C3%B3rios/Rentabilidades%20Site%20inVista.xlsx",
@@ -128,6 +152,30 @@
           "color": "#ECE600",
           "accumulated": true,
           "benchmark": true
+        }
+      ]
+    },
+    {
+      "output": "ibbp11-senior-ipca",
+      "title": "Retorno Histórico",
+      "subtitle": "*Total Return (dividendos + ganho de capital)",
+      "share_url": "https://invistame.sharepoint.com/sites/dir-corporativo/Shared%20Documents/Base%20Relat%C3%B3rios/Rentabilidades%20Site%20inVista.xlsx",
+      "drive_id": "b!l7B3W7RV3EGywLtxZR7QZ85AsRc5nPxHnXRCfGFMbNLmfRBaKRKFRrFKuhYauHRZ",
+      "item_id": "01V4IWKRRVV7WXPWG6FVBZ5FPOTEJNSOOD",
+      "worksheet": "Rentabilidades Mensais",
+      "mode": "cumulative_pct",
+      "chart_type": "line",
+      "x_endpoints": [
+        "Início",
+        "Atual"
+      ],
+      "hide_y_axis": true,
+      "series": [
+        {
+          "column": "Acum IBBP11 Sênior",
+          "name": "Fundo",
+          "color": "#138A3C",
+          "accumulated": true
         },
         {
           "column": "Bench IPCA+6 IBBP11 Sênior",
