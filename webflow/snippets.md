@@ -4,6 +4,11 @@ Cada bloco abaixo é **autossuficiente**: cole num **HTML Embed** do Webflow e p
 Não precisa de Footer Code, configuração de página nem nada — pode repetir vários
 na mesma página (o motor carrega uma vez só).
 
+> **Idiomas (PT/EN/ES):** o motor escolhe o idioma sozinho pelo `<html lang>` da página
+> (o Webflow Localization já ajusta isso em /en e /es). Para forçar, adicione
+> `data-lang="en"` (ou `es`/`pt`) na `<div class="invista-chart">` / `invista-table`.
+> Textos novos: adicionar em `I18N` no `docs/embed.js` (sem tradução, aparece em PT).
+
 > Dados atualizam sozinhos (a VPS regenera os JSONs de hora em hora a partir do Excel).
 
 ---

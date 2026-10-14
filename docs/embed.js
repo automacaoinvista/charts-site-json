@@ -1,5 +1,5 @@
-/* inVista Charts — motor auto-contido (https://charts.automacaoinvista.me/embed.js)
-   Cole no Webflow (HTML Embed) o snippet completo por elemento — ver webflow/snippets.md.
+/* inVista Charts \u2014 motor auto-contido (https://charts.automacaoinvista.me/embed.js)
+   Cole no Webflow (HTML Embed) o snippet completo por elemento \u2014 ver webflow/snippets.md.
    Pode repetir em varios embeds na mesma pagina; o motor carrega uma vez so.
    Fonte Inter (OFL) e Highcharts auto-hospedados. Highcharts: uso comercial exige licenca valida. */
 (function () {
@@ -27,20 +27,75 @@
   window.__invistaChartsInit = true;
 
   var PALETTE = ["#138A3C", "#ECE600", "#0E9384", "#9CA3AF", "#1F2937"];
-  function fmtPct(v){return v.toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2})+"%";}
-  function fmtIdx(v){return v.toLocaleString("pt-BR",{minimumFractionDigits:2,maximumFractionDigits:2});}
+  // ---------- i18n (pt / en / es) ----------
+  // Idioma: data-lang no elemento > <html lang> (o Webflow Localization ajusta) > /en/ ou /es/ na URL > pt.
+  // Textos dos JSON vem em pt e sao traduzidos aqui; texto sem traducao fica como veio.
+  var LOCALE = { pt: "pt-BR", en: "en-US", es: "es-ES" };
+  var I18N = {
+    en: {
+      "Retorno Hist\u00f3rico": "Historical Return",
+      "*Total Return (dividendos + ganho de capital)": "*Total Return (dividends + capital gain)",
+      "Performance Hist\u00f3rica": "Historical Performance",
+      "In\u00edcio": "Start", "Atual": "Current",
+      "Fundo": "Fund", "Ano": "Year",
+      "Benchmark: 6% a.a. em D\u00f3lar": "Benchmark: 6% p.a. in USD",
+      "Benchmark: IPCA + 6% a.a.": "Benchmark: IPCA + 6% p.a.",
+      "IPCA + 6% a.a.": "IPCA + 6% p.a.",
+      "Sem dados.": "No data.",
+      "N\u00e3o foi poss\u00edvel carregar a tabela.": "Could not load the table.",
+      "N\u00e3o foi poss\u00edvel carregar o gr\u00e1fico.": "Could not load the chart."
+    },
+    es: {
+      "Retorno Hist\u00f3rico": "Rendimiento Hist\u00f3rico",
+      "*Total Return (dividendos + ganho de capital)": "*Retorno Total (dividendos + ganancia de capital)",
+      "Performance Hist\u00f3rica": "Desempe\u00f1o Hist\u00f3rico",
+      "In\u00edcio": "Inicio", "Atual": "Actual",
+      "Fundo": "Fondo", "Ano": "A\u00f1o",
+      "Benchmark: 6% a.a. em D\u00f3lar": "Benchmark: 6% anual en D\u00f3lares",
+      "Benchmark: IPCA + 6% a.a.": "Benchmark: IPCA + 6% anual",
+      "IPCA + 6% a.a.": "IPCA + 6% anual",
+      "Sem dados.": "Sin datos.",
+      "N\u00e3o foi poss\u00edvel carregar a tabela.": "No se pudo cargar la tabla.",
+      "N\u00e3o foi poss\u00edvel carregar o gr\u00e1fico.": "No se pudo cargar el gr\u00e1fico."
+    }
+  };
+  var MONTHS = {
+    pt: ["jan","fev","mar","abr","mai","jun","jul","ago","set","out","nov","dez"],
+    en: ["jan","feb","mar","apr","may","jun","jul","aug","sep","oct","nov","dec"],
+    es: ["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"]
+  };
+  function langOf(el) {
+    var cands = [el && el.getAttribute("data-lang"), document.documentElement.lang,
+      (location.pathname.match(/^\/(en|es|pt)(\/|$)/) || [])[1]];
+    for (var i = 0; i < cands.length; i++) {
+      var l = (cands[i] || "").slice(0, 2).toLowerCase();
+      if (LOCALE[l]) return l;
+    }
+    return "pt";
+  }
+  function tr(lang, t) { return (I18N[lang] && I18N[lang][t]) || t; }
+  // "set/19" (pt, vindo do JSON) -> "sep/19"
+  function trLabel(lang, lab) {
+    var m = /^([a-z\u00e7]{3})\/(\d{2})$/.exec(lab || "");
+    var i = m ? MONTHS.pt.indexOf(m[1]) : -1;
+    return i < 0 ? tr(lang, lab) : MONTHS[lang][i] + "/" + m[2];
+  }
+  function fmtNum(lang, v) {
+    return v.toLocaleString(LOCALE[lang], { minimumFractionDigits: 2, maximumFractionDigits: 2, useGrouping: true });
+  }
   function hexA(hex,a){var h=hex.replace("#","");return "rgba("+parseInt(h.substr(0,2),16)+","+parseInt(h.substr(2,2),16)+","+parseInt(h.substr(4,2),16)+","+a+")";}
 
   function render(el, cfg) {
     var isPct = cfg.mode === "monthly" || cfg.mode === "cumulative_pct";
     var isBar = (cfg.type || (cfg.mode === "monthly" ? "bar" : "line")) === "bar";
-    var fmt = isPct ? fmtPct : fmtIdx;
-    var labels = cfg.labels || [];
+    var lang = langOf(el);
+    var fmt = function (v) { return fmtNum(lang, v) + (isPct ? "%" : ""); };
+    var labels = (cfg.labels || []).map(function (l) { return trLabel(lang, l); });
     var last = labels.length - 1;
-    var endpoints = cfg.xEndpoints;            // ex: ["Início","Atual"] ou null
+    var endpoints = cfg.xEndpoints && cfg.xEndpoints.map(function (t) { return tr(lang, t); });  // ex: ["In\u00edcio","Atual"] ou null
     var hideY = !!cfg.hideYAxis;
 
-    // com 2+ benchmarks, só o primeiro começa visível (os botões alternam)
+    // com 2+ benchmarks, s\u00f3 o primeiro come\u00e7a vis\u00edvel (os bot\u00f5es alternam)
     var benchIdx = [];
     (cfg.series || []).forEach(function (s, i) { if (s.benchmark) benchIdx.push(i); });
     var hasToggle = benchIdx.length >= 2;
@@ -50,7 +105,7 @@
       var area = cfg.area && !isBar && i === 0;
       var hidden = hasToggle && s.benchmark && i !== benchIdx[0];
       return {
-        name: s.name, color: color,
+        name: tr(lang, s.name), color: color,
         visible: !hidden, showInLegend: !hidden,
         type: isBar ? "column" : (area ? "areaspline" : "spline"),
         data: s.data,
@@ -64,9 +119,9 @@
       chart: { backgroundColor: "transparent", style: { fontFamily: '"Inter", system-ui, sans-serif' },
         spacingLeft: endpoints ? 24 : 2, spacingRight: endpoints ? 24 : 6 },
       credits: { enabled: false },
-      title: { text: cfg.title || "", align: "left", margin: 6,
+      title: { text: tr(lang, cfg.title || ""), align: "left", margin: 6,
         style: { color: "#0E2A38", fontSize: "20px", fontWeight: "600", lineHeight: "120%" } },
-      subtitle: { text: cfg.subtitle || "", align: "left", style: { color: "#9CA3AF", fontSize: "12px", fontWeight: "300" } },
+      subtitle: { text: tr(lang, cfg.subtitle || ""), align: "left", style: { color: "#9CA3AF", fontSize: "12px", fontWeight: "300" } },
       xAxis: {
         categories: labels, tickLength: 0, lineColor: "#E7E1D0",
         tickPositions: endpoints ? [0, last] : undefined,
@@ -84,7 +139,7 @@
         formatter: function () {
           var html = '<div style="font-weight:600;margin-bottom:4px">' + this.points[0].key + "</div>";
           this.points.forEach(function (pt) {
-            html += '<div><span style="color:' + pt.color + '">●</span> ' + pt.series.name + ": " + fmt(pt.y) + "</div>";
+            html += '<div><span style="color:' + pt.color + '">\u25cf</span> ' + pt.series.name + ": " + fmt(pt.y) + "</div>";
           });
           return html;
         }
@@ -114,7 +169,7 @@
     idxs.forEach(function (si, k) {
       var b = document.createElement("button");
       b.type = "button";
-      b.textContent = cfg.series[si].name;
+      b.textContent = tr(langOf(el), cfg.series[si].name);
       if (k === 0) b.className = "active";
       b.onclick = function () {
         idxs.forEach(function (sj) {
@@ -130,14 +185,16 @@
     el.parentNode.insertBefore(bar, el);
   }
 
-  var MESES = ["jan","fev","mar","abr","mai","jun","jul","ago","set","out","nov","dez"];
-  var MES_HDR = ["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"];
-  function fmtCell(v){ return (v === null || v === undefined) ? "-" : fmtPct(v); }
+  var MESES = MONTHS.pt;  // chaves dos labels do JSON (sempre pt)
+  function cap(t) { return t.charAt(0).toUpperCase() + t.slice(1); }
 
   function renderTable(el, cfg) {
+    var lang = langOf(el);
+    var MES_HDR = MONTHS[lang].map(cap);
+    function fmtCell(v){ return (v === null || v === undefined) ? "-" : fmtNum(lang, v) + "%"; }
     var fund = (cfg.series || [])[0];
     var benches = (cfg.series || []).filter(function (s) { return s.benchmark; });
-    if (!fund || !fund.monthly) { el.textContent = "Sem dados."; return; }
+    if (!fund || !fund.monthly) { el.textContent = tr(lang, "Sem dados."); return; }
     var byLabel = {};
     (cfg.labels || []).forEach(function (lab, i) { if (i > 0) byLabel[lab] = fund.monthly[i]; });
     var years = [];
@@ -149,15 +206,15 @@
     var selBench = 0;
     function build() {
       var b = benches[selBench];
-      var html = '<div class="invista-table-head"><h3>Performance Histórica</h3>';
+      var html = '<div class="invista-table-head"><h3>' + tr(lang, "Performance Hist\u00f3rica") + '</h3>';
       if (benches.length > 1) {
         html += '<div class="invista-bench-toggle">' + benches.map(function (x, k) {
-          return '<button type="button" data-k="' + k + '" class="' + (k === selBench ? "active" : "") + '">' + x.name + "</button>";
+          return '<button type="button" data-k="' + k + '" class="' + (k === selBench ? "active" : "") + '">' + tr(lang, x.name) + "</button>";
         }).join("") + "</div>";
       }
-      html += '</div><div class="invista-table-scroll"><table><thead><tr><th>Ano</th>' +
+      html += '</div><div class="invista-table-scroll"><table><thead><tr><th>' + tr(lang, "Ano") + '</th>' +
         MES_HDR.map(function (m) { return "<th>" + m + "</th>"; }).join("") +
-        '<th class="sep">Ano</th>' + (b ? "<th>" + b.name.replace(/^Benchmark:\s*/, "") + "</th>" : "") + "</tr></thead><tbody>";
+        '<th class="sep">' + tr(lang, "Ano") + '</th>' + (b ? "<th>" + tr(lang, b.name).replace(/^[^:]*:\s*/, "") + "</th>" : "") + "</tr></thead><tbody>";
       years.forEach(function (y) {
         html += "<tr><th>" + y + "</th>";
         for (var m = 0; m < 12; m++) {
@@ -184,7 +241,7 @@
       fetch(el.getAttribute("data-src"), { cache: "no-store" })
         .then(function (r) { return r.json(); })
         .then(function (cfg) { renderTable(el, cfg); })
-        .catch(function (e) { el.textContent = "Não foi possível carregar a tabela."; console.error("[invista-table]", e); });
+        .catch(function (e) { el.textContent = tr(langOf(el), "N\u00e3o foi poss\u00edvel carregar a tabela."); console.error("[invista-table]", e); });
     });
     document.querySelectorAll(".invista-chart[data-src]").forEach(function (el) {
       if (el.__invistaDone) return;
@@ -202,7 +259,7 @@
         })
         .catch(function (e) {
           el.innerHTML = '<div style="color:#9CA3AF;font:14px sans-serif;display:flex;'
-            + 'align-items:center;justify-content:center;height:100%">Não foi possível carregar o gráfico.</div>';
+            + 'align-items:center;justify-content:center;height:100%">' + tr(langOf(el), "N\u00e3o foi poss\u00edvel carregar o gr\u00e1fico.") + '</div>';
           console.error("[invista-chart]", e);
         });
     });
